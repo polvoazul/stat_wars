@@ -1,4 +1,8 @@
 "use strict"
+
+Matter.Resolver._restingThresh = 0.1 // solving bug: https://github.com/liabru/matter-js/issues/394
+Matter.Resolver._restingThreshTangent = 1
+
 import {ParticleFactory} from "./particle-factory.js"
 import Color from "https://colorjs.io/dist/color.esm.js";
 import Player from "./player.js"
@@ -28,7 +32,7 @@ window.W = 800;
 class Env {
   setup(element_id) {
     // create engine
-    this.engine = Engine.create();
+    this.engine = Engine.create({velocityIterations: 8});
     this.engine.gravity.scale = 0;
     this.world = this.engine.world;
 
@@ -55,10 +59,12 @@ class Env {
     var runner = Runner.create();
 
     this.build_play_field();
-    this.build_players();
-    // this.build_emmiters();
-    this.register_events();
     this.add_mouse_control();
+
+    this.build_players();
+
+
+    this.register_events();
 
     Runner.run(runner, this.engine);
 
@@ -93,7 +99,7 @@ class Env {
 
   build_players() {
     let margin = 20,
-      play_area = 50;
+      play_area = 100;
     var p1 = new Player(0 + play_area + margin, H / 2, this);
     var p2 = new Player(W - (play_area + margin), H / 2, this);
     Composite.add(this.world, p1.shape);
@@ -145,3 +151,9 @@ window.restart = function (){
 }
 
 restart()
+
+/*
+Composite.add(env.world, Bodies.polygon(300, 300, 10, 50, {
+    restitution: 1, frictionAir:0, force: {x: 1, y:.10}, friction:0, mass: 10
+}))
+*/

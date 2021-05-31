@@ -14,6 +14,7 @@ var Engine = Matter.Engine,
   Body = Matter.Body,
   Events = Matter.Events;
 
+
 var numParticles = 0;
 var particlesAdded = 0;
 export function ParticleFactory(env) {
@@ -308,11 +309,11 @@ export function ParticleFactory(env) {
           }
 
           let particle_opts = (({ friction, frictionStatic, inertia }) => ({ friction, frictionStatic, inertia}))(emitter.options);
-          env.particles[name] = Bodies.circle(posX, posY, size, {
+          env.particles[name] = Bodies.polygon(posX, posY, 6, size, {
             isSensor: interactive,
             isParticle: true,
             isStatic: emitter.options.isStatic,
-            mass: 0,
+            density: 1,
             restitution: emitter.options.restituition,
             frictionAir: frictionAir,
             decaySpeed: options.decaySpeed,

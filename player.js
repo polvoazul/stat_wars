@@ -72,7 +72,6 @@ export default class Player {
       frictionAir: 0,
       friction: 0,
       decaySpeed: 0.03,
-      inertia: 1000
     };
     // Composite.add(this.world, Bodies.polygon(300, 300, 10, 50, {restituition: 1, friction:0, frictionAir:0, frictionStatic:0}))
     // return
