@@ -122,6 +122,7 @@ class Env {
 
   register_events() {
     // cant seem to register event on players object themselves TODO: check this later
+    let particle_factory = this.particle_factory
     Events.on(this.engine, "collisionStart", function (e) {
       var pairs = e.pairs;
       pairs = pairs.filter((el, _) => {
@@ -134,6 +135,10 @@ class Env {
         let player = pair.bodyA.is_player ? pair.bodyA : pair.bodyB;
         let other = !pair.bodyA.is_player ? pair.bodyA : pair.bodyB;
         player = player.player;
+        if (other.isParticle){
+            Composite.remove(this.world, other)
+            explode(other.position, particle_factory)
+        }
         player.take_damage(21);
       }
     });
@@ -142,6 +147,17 @@ class Env {
   title = "Env";
   for = ">=0.14.2";
 }
+
+function explode(position, particle_factory) {
+    let emmiter = particle_factory.emitter.create(
+            position.x,
+            position.y,
+            {collisions: false, amount: 40, amountPerTick:10, interval: 1, collisionFilter:{group: -1}}
+            );
+    emmiter.start();
+}
+
+
 
 
 window.restart = function (){
