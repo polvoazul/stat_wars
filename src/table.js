@@ -1,17 +1,22 @@
 import BTable from 'react-bootstrap/Table'
 import {useTable} from 'react-table'
+import {useMemo} from 'react'
 
 export function Table(props) {
 
     const game_data_columns = [ { Header: 'health', accessor: 'game.health', } ]
-    let columns = [...props.columns, ...game_data_columns ]
+    let columns = useMemo( () => [...props.columns, ...game_data_columns ], [props.columns])
     let stats = [...props.stats]
     for (var i=0; i < props.stats.length; i++) {
         const default_ = {health: NaN}
         stats[i].game = props.game_data[i] || default_
     }
 
-    return <div><p>{JSON.stringify(stats)}</p><p>{JSON.stringify(columns)}</p></div>
+    //return <div><p>{JSON.stringify(stats)}</p><p>{JSON.stringify(columns)}</p></div>
+    // return (<BTable>
+    //         <thead>{JSON.stringify(stats)}
+    //     <tr {...columns}/></thead></BTable>)
+
     const {
         getTableProps,
         getTableBodyProps,
@@ -19,9 +24,7 @@ export function Table(props) {
         rows,
         prepareRow
     } = useTable({columns: columns, data: stats})
-   return (<div/>)
 
-    console.log(stats)
    return (
      <BTable {...getTableProps()} striped bordered hover >
        <thead>

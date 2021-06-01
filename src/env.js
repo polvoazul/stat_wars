@@ -124,14 +124,10 @@ export class Env {
 
   register_events() {
     // cant seem to register event on players object themselves TODO: check this later
-    let particle_factory = this.particle_factory
-    let callback = this.game_data_callback
-    let d = 0
+    const env = this
     function update_game_data() {
-        d++
-        let game_data = [{health: d}, {health: d}]
-        // if (d++ >= 0)
-        callback(game_data)
+        let game_data = env.players.map(p => {return {health: p.health}})
+        env.game_data_callback(game_data)
     }
     Events.on(this.engine, "collisionStart", function (e) {
       var pairs = e.pairs;
@@ -147,7 +143,7 @@ export class Env {
         player = player.player;
         if (other.isParticle){
             Composite.remove(this.world, other)
-            explode(other.position, particle_factory)
+            explode(other.position, env.particle_factory)
         }
         player.take_damage(51);
         update_game_data()
