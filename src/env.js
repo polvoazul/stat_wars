@@ -1,7 +1,7 @@
 /* eslint no-unused-vars: "off" */
 
 import Matter from "matter-js"
-import {ParticleFactory} from "./particle-factory.js"
+import {ParticleEmitterFactory} from "./particle-factory.js"
 import Color from "color";
 import Player from "./player.js"
 
@@ -39,7 +39,7 @@ export class Env {
     this.engine.gravity.scale = 0;
     this.world = this.engine.world;
 
-    this.particle_factory = ParticleFactory(this);
+    this.particle_factory = new ParticleEmitterFactory(this);
 
     // create renderer
     var render = Render.create({
@@ -76,6 +76,7 @@ export class Env {
       min: { x: 0, y: 0 },
       max: { x: 800, y: 600 }
     });
+    this.update_game_data()
   }
 
   add_mouse_control() {
@@ -107,7 +108,7 @@ export class Env {
     Composite.add(this.world, p1.shape);
     Composite.add(this.world, p2.shape);
     this.players = [p1, p2];
-    this.players.map((p) => p.build_emmiter());
+    this.players.map((p) => p.build_emitter());
   }
 
   build_play_field() {
@@ -122,14 +123,16 @@ export class Env {
     ]);
   }
 
-  register_events() {
-    // cant seem to register event on players object themselves TODO: check this later
-    const env = this
-    function update_game_data() {
-        let game_data = env.players.map(p => {return {health: p.health}})
-        env.game_data_callback(game_data)
+    update_game_data() {
+        if (!this.game_data_callback) return
+        let game_data = this.players.map(p => {return {
+            health: p.health, died_at: p.died_at || null, damage_dealt: p.damage_dealt
+        }})
+        this.game_data_callback(game_data)
     }
-    Events.on(this.engine, "collisionStart", function (e) {
+  register_events() {
+    const env = this
+    Events.on(this.engine, "collisionStart", function (e) { // cant seem to register event on players object themselves TODO: check this later
       var pairs = e.pairs;
       pairs = pairs.filter((el, _) => {
         return el.bodyA.is_player || el.bodyB.is_player;
@@ -145,8 +148,12 @@ export class Env {
             Composite.remove(this.world, other)
             explode(other.position, env.particle_factory)
         }
-        player.take_damage(51);
-        update_game_data()
+        let damage_dealt = player.take_damage(51);
+        if (other.owner === undefined){
+            //debugger
+        }
+        other.owner.damage_dealt += damage_dealt
+        env.update_game_data()
       }
     });
   }
@@ -157,12 +164,12 @@ export class Env {
 }
 
 function explode(position, particle_factory) {
-    let emmiter = particle_factory.emitter.create(
+    let emitter = particle_factory.create(
             position.x,
             position.y,
             {collisions: false, amount: 40, amountPerTick:10, interval: 1, collisionFilter:{group: -1}}
-            );
-    emmiter.start();
+    );
+    emitter.start();
 }
 
 

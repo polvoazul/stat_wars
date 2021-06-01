@@ -34,6 +34,7 @@ export default class Player {
     this.color = Player.pallete[this.idx % Player.pallete.length]
     this.original_color = Player.pallete[this.idx % Player.pallete.length]
     this.shape = this._build_shape(x, y);
+    this.damage_dealt = 0
   }
 
   _build_shape(x, y) {
@@ -58,7 +59,7 @@ export default class Player {
     return { category: category, mask: mask, group: 0 };
   }
 
-  build_emmiter() {
+  build_emitter() {
     let opts = {
       amount: Infinity,
       interval: 1001, // in millis
@@ -76,10 +77,10 @@ export default class Player {
     };
     // Composite.add(this.world, Bodies.polygon(300, 300, 10, 50, {restituition: 1, friction:0, frictionAir:0, frictionStatic:0}))
     // return
-    this.emmiter = this.env.particle_factory.emitter.create(
+    this.emmiter = this.env.particle_factory.create(
       this.x,
       this.y,
-      opts
+      {owner: this, ...opts}
     );
     this.emmiter.start();
   }
@@ -100,6 +101,7 @@ export default class Player {
     let health_percentage = this.health / this.max_health;
     this.color = this.color.alpha(health_percentage)
     this.shape.render.fillStyle = this.color.string();
+    return damage
   }
 
   die() {
@@ -107,6 +109,7 @@ export default class Player {
     Composite.remove(this.world, this.shape);
     this.emmiter.stop();
     this.dead = true;
+    this.died_at = new Date()
   }
 }
 

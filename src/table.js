@@ -2,14 +2,26 @@ import BTable from 'react-bootstrap/Table'
 import {useTable} from 'react-table'
 import {useMemo} from 'react'
 
-export function Table(props) {
+const game_data_columns = [
+    { Header: 'Health', accessor: 'game.health', },
+    { Header: 'Died at', accessor: 'game.died_at', },
+    { Header: 'Damage Dealt', accessor: 'game.damage_dealt', },
+]
 
-    const game_data_columns = [ { Header: 'health', accessor: 'game.health', } ]
-    let columns = useMemo( () => [...props.columns, ...game_data_columns ], [props.columns])
+export function Table(props) {
     let stats = [...props.stats]
+
+    let columns = useMemo( () => {
+        const columns_copy = [...props.columns] // this is needed to prevent a bug where columns vanish, needs further investigation as to why
+        if (props.columns === undefined) return []
+        return [columns_copy[0], ...game_data_columns, ...columns_copy.splice(1) ]
+    }, [props.columns])
+
     for (var i=0; i < props.stats.length; i++) {
-        const default_ = {health: NaN}
-        stats[i].game = props.game_data[i] || default_
+        if(props.game_data[i] === undefined) continue
+        stats[i].game = {...props.game_data[i]}
+        if(stats[i].game.died_at !== null)
+            stats[i].game.died_at = ((stats[i].game.died_at - props.start_time)/1000).toFixed(1) + 's'
     }
 
     //return <div><p>{JSON.stringify(stats)}</p><p>{JSON.stringify(columns)}</p></div>
