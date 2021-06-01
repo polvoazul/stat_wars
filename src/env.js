@@ -1,11 +1,13 @@
 "use strict"
 
+import Matter from "matter-js"
+import {ParticleFactory} from "./particle-factory.js"
+import Color from "color";
+import Player from "./player.js"
+
 Matter.Resolver._restingThresh = 0.1 // solving bug: https://github.com/liabru/matter-js/issues/394
 Matter.Resolver._restingThreshTangent = 1
 
-import {ParticleFactory} from "./particle-factory.js"
-import Color from "https://colorjs.io/dist/color.esm.js";
-import Player from "./player.js"
 
 console.clear();
 // matter-tools by liabru https://github.com/liabru/matter-tools
@@ -23,8 +25,6 @@ var Engine = Matter.Engine,
   Mouse = Matter.Mouse,
   Body = Matter.Body,
   Events = Matter.Events;
-
-Color
 
 window.H = 600;
 window.W = 800;
@@ -100,8 +100,8 @@ class Env {
   build_players() {
     let margin = 20,
       play_area = 100;
-    var p1 = new Player(0 + play_area + margin, H / 2, this);
-    var p2 = new Player(W - (play_area + margin), H / 2, this);
+    var p1 = new Player(0 + play_area + margin, window.H / 2, this);
+    var p2 = new Player(window.W - (play_area + margin), window.H / 2, this);
     Composite.add(this.world, p1.shape);
     Composite.add(this.world, p2.shape);
     this.players = [p1, p2];
@@ -160,16 +160,11 @@ function explode(position, particle_factory) {
 
 
 
-window.restart = function (){
+export function restart(){
   window.env = new Env();
   window.document.getElementById("canvas").innerHTML = ""
-  env.setup("canvas");
+  window.env.setup("canvas");
 }
+window.restart = restart
 
-restart()
-
-/*
-Composite.add(env.world, Bodies.polygon(300, 300, 10, 50, {
-    restitution: 1, frictionAir:0, force: {x: 1, y:.10}, friction:0, mass: 10
-}))
-*/
+//window.restart()

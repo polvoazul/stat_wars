@@ -1,18 +1,8 @@
 'use strict'
 ////////////////////
-var Engine = Matter.Engine,
-  Render = Matter.Render,
-  Runner = Matter.Runner,
-  Composites = Matter.Composites,
-  Composite = Matter.Composite,
-  Common = Matter.Common,
-  World = Matter.World,
-  Bodies = Matter.Bodies,
-  Grid = Matter.Grid,
-  MouseConstraint = Matter.MouseConstraint,
-  Mouse = Matter.Mouse,
-  Body = Matter.Body,
-  Events = Matter.Events;
+import { Engine, Render, Runner, Composites,
+  Composite, Common, World, Bodies, Grid,
+  MouseConstraint, Mouse, Body, Events, } from 'matter-js'
 
 
 var numParticles = 0;
@@ -56,60 +46,6 @@ export function ParticleFactory(env) {
         wireframes: false,
         showBroadphase: false
       },
-      create() {
-        // create an engine
-        (window["engine"] = Engine.create()), (window["world"] = engine.world);
-        engine.timing.timeScale = 1;
-
-        // create a renderer
-        let defaults = Particle.engine.defaults;
-        if (defaults.canvas == undefined) {
-          window["render"] = Render.create({
-            element: document.body,
-            engine: engine,
-            options: {
-              width: defaults.width,
-              height: defaults.height,
-              background: defaults.background,
-              wireframes: defaults.wireframes,
-              showBroadphase: defaults.broadphase
-            }
-          });
-        } else {
-          window["render"] = Render.create({
-            canvas: defaults.canvas,
-            engine: engine,
-            options: {
-              width: defaults.width,
-              height: defaults.height,
-              background: defaults.background,
-              wireframes: defaults.wireframes,
-              showBroadphase: defaults.broadphase
-            }
-          });
-        }
-        engine.world.gravity.y = 0;
-        Render.run(render);
-
-        // create runner
-        window["runner"] = Runner.create();
-        Runner.run(runner, engine);
-      },
-      createMouse() {
-        (window["mouse"] = Mouse.create(render.canvas)),
-          (window["mouseConstraint"] = MouseConstraint.create(env.engine, {
-            mouse: mouse,
-            constraint: {
-              stiffness: 0.1,
-              render: {
-                visible: false
-              }
-            }
-          }));
-
-        World.add(env.world, mouseConstraint);
-        render.mouse = mouse;
-      }
     },
     emitter: {
       random(min, max) {

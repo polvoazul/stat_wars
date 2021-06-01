@@ -1,5 +1,6 @@
 "use strict"
-import Color from "https://colorjs.io/dist/color.esm.js";
+import Color from "color";
+import Matter from "matter-js"
 
 var Engine = Matter.Engine,
   Render = Matter.Render,
@@ -39,7 +40,7 @@ export default class Player {
     let opts = {
       isStatic: true,
       render: {
-        fillStyle: this.color.toString(),
+        fillStyle: this.color.string(),
         strokeStyle: "white",
         lineWidth: 3
       },
@@ -66,7 +67,7 @@ export default class Player {
       delay: 1000 * 10,
       collisions: true,
       restituition: 1,
-      colors: this.original_color.toString(),
+      colors: this.original_color.string(),
       collisionFilter: this.collision_filter,
       frictionStatic: 0,
       frictionAir: 0,
@@ -97,8 +98,8 @@ export default class Player {
       this.die();
     }
     let health_percentage = this.health / this.max_health;
-    this.color.alpha = health_percentage
-    this.shape.render.fillStyle = this.color.toString();
+    this.color = this.color.alpha(health_percentage)
+    this.shape.render.fillStyle = this.color.string();
   }
 
   die() {
