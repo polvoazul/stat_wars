@@ -1,4 +1,4 @@
-"use strict"
+/* eslint no-unused-vars: "off" */
 import Color from "color";
 import Matter from "matter-js"
 

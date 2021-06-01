@@ -1,4 +1,4 @@
-"use strict"
+/* eslint no-unused-vars: "off" */
 
 import Matter from "matter-js"
 import {ParticleFactory} from "./particle-factory.js"
@@ -7,7 +7,6 @@ import Player from "./player.js"
 
 Matter.Resolver._restingThresh = 0.1 // solving bug: https://github.com/liabru/matter-js/issues/394
 Matter.Resolver._restingThreshTangent = 1
-
 
 console.clear();
 // matter-tools by liabru https://github.com/liabru/matter-tools

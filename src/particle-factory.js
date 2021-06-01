@@ -1,5 +1,4 @@
-'use strict'
-////////////////////
+/* eslint no-unused-vars: "off" */
 import { Engine, Render, Runner, Composites,
   Composite, Common, World, Bodies, Grid,
   MouseConstraint, Mouse, Body, Events, } from 'matter-js'
@@ -49,10 +48,10 @@ export function ParticleFactory(env) {
     },
     emitter: {
       random(min, max) {
-        if (min == undefined && max == undefined) {
+        if (min === undefined && max === undefined) {
           min = 0;
           max = 1;
-        } else if (max == undefined) {
+        } else if (max === undefined) {
           max = min;
           min = 0;
         }
@@ -63,60 +62,60 @@ export function ParticleFactory(env) {
         let defaults = Particle.defaults;
 
         //Reset options to defaults
-        if (options == undefined) {
+        if (options === undefined) {
           options = defaults;
         }
-        if (options.collisions == undefined) {
+        if (options.collisions === undefined) {
           options.collisions = defaults.collisions;
         }
-        if (options.isStatic == undefined) {
+        if (options.isStatic === undefined) {
           options.isStatic = defaults.isStatic;
         }
-        if (options.size == undefined) {
+        if (options.size === undefined) {
           options.size = defaults.size;
-        } else if (typeof options.size == "number") {
+        } else if (typeof options.size === "number") {
           options.size = {
             min: options.size,
             max: options.size
           };
         }
-        if (options.amount == undefined) {
+        if (options.amount === undefined) {
           options.amount = defaults.amount;
         }
-        if (options.interval == undefined) {
+        if (options.interval === undefined) {
           options.interval = defaults.interval;
         }
-        if (options.velocity == undefined) {
+        if (options.velocity === undefined) {
           options.velocity = defaults.velocity;
         }
-        if (options.velocity.direction == undefined) {
+        if (options.velocity.direction === undefined) {
           options.velocity.direction = defaults.velocity.direction;
-        } else if (options.velocity.direction.x == undefined) {
+        } else if (options.velocity.direction.x === undefined) {
           options.velocity.direction.x = defaults.velocity.direction.x;
-        } else if (options.velocity.direction.y == undefined) {
+        } else if (options.velocity.direction.y === undefined) {
           options.velocity.direction.y = defaults.velocity.direction.y;
         }
-        if (options.colors == undefined) {
+        if (options.colors === undefined) {
           options.colors = defaults.colors;
-        } else if (typeof options.colors == "string") {
+        } else if (typeof options.colors === "string") {
           options.colors = [options.colors];
         }
-        if (options.delay == undefined) {
+        if (options.delay === undefined) {
           options.delay = defaults.delay;
         }
-        if (options.frictionAir == undefined) {
+        if (options.frictionAir === undefined) {
           options.frictionAir = defaults.frictionAir;
         }
-        if (options.parent == undefined) {
+        if (options.parent === undefined) {
           options.parent = defaults.parent;
         }
-        if (options.collisionFilter == undefined) {
+        if (options.collisionFilter === undefined) {
           options.collisionFilter = defaults.collisionFilter;
         }
-        if (options.amountPerTick == undefined || options.amountPerTick < 1) {
+        if (options.amountPerTick === undefined || options.amountPerTick < 1) {
           options.amountPerTick = defaults.amountPerTick;
         }
-        if (options.decaySpeed == undefined) {
+        if (options.decaySpeed === undefined) {
           options.decaySpeed = defaults.decaySpeed;
         }
         if (options.decaySpeed < 0) {
@@ -129,32 +128,32 @@ export function ParticleFactory(env) {
         options.collisions = options.collisions ? false : true;
 
         //Reset x/y to defaults
-        if (x == undefined) {
+        if (x === undefined) {
           x = defaults.x;
         }
-        if (y == undefined) {
+        if (y === undefined) {
           y = defaults.y;
         }
 
         //Change velocity.direction
         let dir = options.velocity.direction;
-        if (typeof dir.y == "string") {
+        if (typeof dir.y === "string") {
           dir.y = dir.y.toLowerCase();
-          if (dir.y == "up") {
+          if (dir.y === "up") {
             options.velocity.direction.y = -1;
-          } else if (dir.y == "down") {
+          } else if (dir.y === "down") {
             options.velocity.direction.y = 1;
-          } else if (dir.y == "none") {
+          } else if (dir.y === "none") {
             options.velocity.direction.y = 0;
           }
         }
-        if (typeof dir.x == "string") {
+        if (typeof dir.x === "string") {
           dir.x = dir.x.toLowerCase();
-          if (dir.x == "left") {
+          if (dir.x === "left") {
             options.velocity.direction.x = -1;
-          } else if (dir.x == "right") {
+          } else if (dir.x === "right") {
             options.velocity.direction.x = 1;
-          } else if (dir.x == "none") {
+          } else if (dir.x === "none") {
             options.velocity.direction.x = 0;
           }
         }
@@ -211,18 +210,18 @@ export function ParticleFactory(env) {
           numParticles++;
           particlesAdded++;
 
-          if (emitter.options.parent != undefined) {
+          if (emitter.options.parent !== undefined) {
             let parent = emitter.options.parent;
             pos = parent.position;
             emitter.pos = pos;
 
-            if (parent.label == "Circle Body") {
+            if (parent.label === "Circle Body") {
               let angle = Math.random() * Math.PI * 2;
               let dist = Math.random() * parent.circleRadius;
 
               posX = dist * Math.cos(angle) + posX;
               posY = dist * Math.sin(angle) + posY;
-            } else if (parent.label == "Rectangle Body") {
+            } else if (parent.label === "Rectangle Body") {
               posX =
                 Math.random() * (parent.bounds.max.x - parent.bounds.min.x) +
                 parent.bounds.min.x;
@@ -235,9 +234,9 @@ export function ParticleFactory(env) {
           let name = "particle" + numParticles;
           let size = random(pSize.min, pSize.max);
           let color = colors[Math.round(random(colors.length))];
-          color = color != undefined ? color : colors[0];
+          color = color !== undefined ? color : colors[0];
 
-          if (color == "random") {
+          if (color === "random") {
             let r = random(0, 255);
             let g = random(0, 255);
             let b = random(0, 255);
@@ -261,27 +260,27 @@ export function ParticleFactory(env) {
           let particle = env.particles[name];
           World.add(env.world, particle);
 
-          if (collisionFilter != undefined) {
+          if (collisionFilter !== undefined) {
             particle.collisionFilter = collisionFilter;
           }
 
           let velX = random(0, vel.x);
           let velY = random(0, vel.y);
 
-          if (vel.y == undefined) {
+          if (vel.y === undefined) {
             velY = random(0, 2);
           }
-          if (vel.x == undefined) {
+          if (vel.x === undefined) {
             velX = random(0, 2);
           }
 
-          if (direction.x == undefined || direction.x == 0) {
+          if (direction.x === undefined || direction.x === 0) {
             velX = Boolean(Math.round(random())) ? velX : velX * -1;
           } else {
             velX *= direction.x;
           }
 
-          if (direction.y == undefined || direction.y == 0) {
+          if (direction.y === undefined || direction.y === 0) {
             velY = Boolean(Math.round(random())) ? velY : velY * -1;
           } else {
             velY *= direction.y;
@@ -307,11 +306,11 @@ export function ParticleFactory(env) {
               function waitForInterval() {
                 if (emitter.options.amount > 0) {
                   framesPast += env.engine.timing.timeScale;
-                  if (env.runner != undefined && env.runner.fps != undefined) {
+                  if (env.runner !== undefined && env.runner.fps !== undefined) {
                     if (framesPast >= interval / (1000 / env.runner.fps)) {
                       if (amountPerTick > 1) {
                         for (let i = amountPerTick; i--; ) {
-                          if (i != 0) {
+                          if (i !== 0) {
                             addParticle(true);
                           } else {
                             addParticle();
@@ -329,7 +328,7 @@ export function ParticleFactory(env) {
                       interval / 16.67 / env.engine.timing.timeScale
                     ) {
                       for (let i = amountPerTick; i--; ) {
-                        if (i != 0) {
+                        if (i !== 0) {
                           addParticle(true);
                         } else {
                           addParticle();
