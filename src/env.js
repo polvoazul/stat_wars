@@ -28,7 +28,11 @@ var Engine = Matter.Engine,
 window.H = 600;
 window.W = 800;
 
-class Env {
+export class Env {
+  constructor(game_data_callback){
+      this.game_data_callback = game_data_callback
+  }
+
   setup(element_id) {
     // create engine
     this.engine = Engine.create({velocityIterations: 8});
@@ -96,9 +100,8 @@ class Env {
     Matter.Runner.stop(this.runner);
   }
 
-  build_players() {
-    let margin = 20,
-      play_area = 100;
+  build_players(data) {
+    let margin = 20, play_area = 100;
     var p1 = new Player(0 + play_area + margin, window.H / 2, this);
     var p2 = new Player(window.W - (play_area + margin), window.H / 2, this);
     Composite.add(this.world, p1.shape);
@@ -122,6 +125,14 @@ class Env {
   register_events() {
     // cant seem to register event on players object themselves TODO: check this later
     let particle_factory = this.particle_factory
+    let callback = this.game_data_callback
+    let d = 0
+    function update_game_data() {
+        d++
+        let game_data = [{health: d}, {health: d}]
+        // if (d++ >= 0)
+        callback(game_data)
+    }
     Events.on(this.engine, "collisionStart", function (e) {
       var pairs = e.pairs;
       pairs = pairs.filter((el, _) => {
@@ -138,13 +149,15 @@ class Env {
             Composite.remove(this.world, other)
             explode(other.position, particle_factory)
         }
-        player.take_damage(21);
+        player.take_damage(51);
+        update_game_data()
       }
     });
   }
 
-  title = "Env";
-  for = ">=0.14.2";
+
+    title = "Env";
+    for = ">=0.14.2";
 }
 
 function explode(position, particle_factory) {
@@ -156,14 +169,5 @@ function explode(position, particle_factory) {
     emmiter.start();
 }
 
-
-
-
-export function restart(){
-  window.env = new Env();
-  window.document.getElementById("canvas").innerHTML = ""
-  window.env.setup("canvas");
-}
-window.restart = restart
 
 //window.restart()

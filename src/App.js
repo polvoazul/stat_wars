@@ -1,74 +1,43 @@
 import './App.css';
-import * as env from './env.js'
-import {React, useEffect, useMemo} from 'react'
+import * as Env from './env.js'
+import {React, useEffect} from 'react'
+import {useState} from 'react'
 import {Table} from './table.js'
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from 'react-bootstrap/Button'
 
+
+let env = new Env.Env()
+
+const stats = [ { name: 'Team1', goals: 2 }, { name: 'Team2', goals: 5 }, ]
+const columns = [ { Header: 'Nome | Player', accessor: 'name', }, { Header: 'Gols | Max Health', accessor: 'goals', }, ]
+
+const game_init_data = stats
+
 function App() {
-
-  useEffect(() => {
-      env.restart()
-  })
+    let [game_data, set_game_data_state] = useState([]);
+    env.game_data_callback = set_game_data_state
 
 
-  return (
-    <div className="App">
-        <Button onClick={window.restart}> RESTART </Button>
-        <Info/>
-        <div id='canvas'> </div>
-    </div>
-  );
+    function restart() {
+        env = new Env.Env(set_game_data_state)
+        window.document.getElementById("canvas").innerHTML = ""
+        env.setup("canvas", game_init_data);
+    }
+
+    useEffect(() => {
+        window.document.getElementById("canvas").innerHTML = ""
+        env.setup("canvas", game_init_data);
+    }, [])
+
+
+    return (
+        <div className="App">
+            <Button onClick={restart}> RESTART </Button>
+            <Table stats={stats} columns={columns} game_data={game_data}/>
+        </div>
+    );
 }
 
-
-function Info() {
-    const stats = useMemo(() => [
-        {
-            name: 'Team1',
-            goals: 2
-        },
-        {
-            name: 'Team2',
-            goals: 5
-        },
-    ], [])
-    const columns = useMemo(() => [
-        {
-            Header: 'Nome | Player',
-            accessor: 'name', // accessor is the "key" in the data
-        }, {
-            Header: 'Gols | Max Health',
-            accessor: 'goals',
-        },
-    ], [])
-    return ( <Table data={stats} columns={columns}/>
-        /*
-        <thead>
-          <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Username</th>
-          </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>1</td>
-                <td>Mark</td>
-                <td>Otto</td>
-                <td>@mdo</td>
-            </tr>
-            <tr>
-                <td>2</td>
-                <td>Jacob</td>
-                <td>Thornton</td>
-                <td>@fat</td>
-            </tr>
-        </tbody>
-        </Table>
-        //*/
-    )
-
-}
 export default App;
