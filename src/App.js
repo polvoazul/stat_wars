@@ -1,5 +1,5 @@
 import './App.css';
-import * as Env from './env.js'
+import * as Env from './env.ts'
 import {React, useEffect} from 'react'
 import {useState} from 'react'
 import {Table} from './table.js'
@@ -10,7 +10,7 @@ import Button from 'react-bootstrap/Button'
 
 window.env = new Env.Env()
 
-const stats = [ { name: 'Team1', goals: 2 }, { name: 'Team2', goals: 5 }, ]
+const stats = [ { name: 'Vasco', goals: 2 }, { name: 'Botafogo', goals: 5 }, ]
 const columns = [
     { Header: 'Nome | Player', accessor: 'name', },
     { Header: 'Gols | Max Health', accessor: 'goals', },

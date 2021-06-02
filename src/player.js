@@ -1,20 +1,9 @@
 /* eslint no-unused-vars: "off" */
 import Color from "color";
-import Matter from "matter-js"
+import { Engine, Render, Runner, Composites,
+  Composite, Common, World, Bodies, Grid,
+  MouseConstraint, Mouse, Body, Events, } from 'matter-js'
 
-var Engine = Matter.Engine,
-  Render = Matter.Render,
-  Runner = Matter.Runner,
-  Composites = Matter.Composites,
-  Composite = Matter.Composite,
-  Common = Matter.Common,
-  World = Matter.World,
-  Bodies = Matter.Bodies,
-  Grid = Matter.Grid,
-  MouseConstraint = Matter.MouseConstraint,
-  Mouse = Matter.Mouse,
-  Body = Matter.Body,
-  Events = Matter.Events;
 
 
 export default class Player {

@@ -4,10 +4,14 @@
   "private": true,
   "homepage": "https://polvoazul.github.io/stat_wars",
   "dependencies": {
-    "@craco/craco": "^6.1.2",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
+    "@types/jest": "^26.0.23",
+    "@types/matter-js": "^0.14.12",
+    "@types/node": "^15.6.1",
+    "@types/react": "^17.0.8",
+    "@types/react-dom": "^17.0.5",
     "bootstrap": "4.6.0",
     "color": "^3.1.3",
     "matter-js": "^0.17.1",
@@ -16,10 +20,11 @@
     "react-dom": "^17.0.2",
     "react-scripts": "4.0.3",
     "react-table": "^7.7.0",
+    "typescript": "^4.3.2",
     "web-vitals": "^1.0.1"
   },
   "scripts": {
-    "start": "craco start",
+    "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

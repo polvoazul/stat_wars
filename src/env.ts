@@ -1,57 +1,73 @@
 /* eslint no-unused-vars: "off" */
 
-import Matter from "matter-js"
-import {ParticleEmitterFactory} from "./particle-factory.js"
+import Matter, { Engine, Render, Runner, Composites,
+  Composite, Common, World, Bodies, Grid,
+  MouseConstraint, Mouse, Body, Events, } from 'matter-js'
+import {ParticleEmitterFactory} from "./particle-factory"
 import Color from "color";
 import Player from "./player.js"
 
+// @ts-ignore
 Matter.Resolver._restingThresh = 0.1 // solving bug: https://github.com/liabru/matter-js/issues/394
+// @ts-ignore
 Matter.Resolver._restingThreshTangent = 1
+
 
 console.clear();
 // matter-tools by liabru https://github.com/liabru/matter-tools
 
-var Engine = Matter.Engine,
-  Render = Matter.Render,
-  Runner = Matter.Runner,
-  Composites = Matter.Composites,
-  Composite = Matter.Composite,
-  Common = Matter.Common,
-  World = Matter.World,
-  Bodies = Matter.Bodies,
-  Grid = Matter.Grid,
-  MouseConstraint = Matter.MouseConstraint,
-  Mouse = Matter.Mouse,
-  Body = Matter.Body,
-  Events = Matter.Events;
+declare global {
+  interface Window {
+      H:any;
+      W:any;
+  }
+}
+
+declare module 'matter-js' {
+  interface Body {
+    player: Player
+    owner: Player
+  }
+}
 
 window.H = 600;
 window.W = 800;
 
-export class Env {
-  constructor(game_data_callback){
-      this.game_data_callback = game_data_callback
-  }
+type FUN = (...args: any[]) => any
 
-  setup(element_id) {
+export class Env {
+    game_data_callback: FUN
+    engine!: Engine
+    world: any
+    particle_factory!: ParticleEmitterFactory
+    render!: Render
+    runner!: Runner
+    particles: {}
+
+    constructor(game_data_callback: ()=>void ){
+        this.game_data_callback = game_data_callback
+        this.particles = {}
+    }
+
+  setup(element_id: string) {
     // create engine
     this.engine = Engine.create({velocityIterations: 8});
+    // @ts-ignore
     this.engine.gravity.scale = 0;
     this.world = this.engine.world;
 
     this.particle_factory = new ParticleEmitterFactory(this);
 
-    // create renderer
     var render = Render.create({
-      element: document.getElementById(element_id),
+      element: document.getElementById(element_id) as HTMLElement,
       engine: this.engine,
       options: {
         width: 800,
         height: 600,
-        showAngleIndicator: true,
-        // showBroadphase: false,
+        wireframes: false,
+        // @ts-ignore
         showDebug: false,
-        wireframes: false
+        showAngleIndicator: true,
       }
     });
     this.render = render;
@@ -59,7 +75,7 @@ export class Env {
     Render.run(render);
 
     // create runner
-    var runner = Runner.create();
+    this.runner = Runner.create();
 
     this.build_play_field();
     this.add_mouse_control();
@@ -69,7 +85,7 @@ export class Env {
 
     this.register_events();
 
-    Runner.run(runner, this.engine);
+    Runner.run(this.runner, this.engine);
 
     // fit the render viewport to the scene
     Render.lookAt(render, {
@@ -83,6 +99,7 @@ export class Env {
     var mouse = Mouse.create(this.render.canvas),
       mouseConstraint = MouseConstraint.create(this.engine, {
         mouse: mouse,
+        // @ts-ignore
         constraint: {
           stiffness: 0.2,
           render: {
@@ -91,8 +108,8 @@ export class Env {
         }
       });
 
-    Composite.add(this.world, mouseConstraint);
-    // keep the mouse in sync with rendering
+    Composite.add(this.world, mouseConstraint as any);
+    // @ts-ignore
     this.render.mouse = mouse;
   }
 
@@ -101,7 +118,10 @@ export class Env {
     Matter.Runner.stop(this.runner);
   }
 
-  build_players(data) {
+  players!: Array<Player>
+
+
+  build_players() {
     let margin = 20, play_area = 100;
     var p1 = new Player(0 + play_area + margin, window.H / 2, this);
     var p2 = new Player(window.W - (play_area + margin), window.H / 2, this);
@@ -114,8 +134,8 @@ export class Env {
   build_play_field() {
     // add bodies
     let opts = { isStatic: true} //, friction:0, restituition:1, frictionStatic:0, inertia: 10000};
-    Composite.add(this.world, [
-      // walls
+    // @ts-ignore
+    Composite.add(this.world, [ // walls
       Bodies.rectangle(400, 0, 800, 100, opts),
       Bodies.rectangle(400, 600, 800, 100, opts),
       Bodies.rectangle(800, 300, 100, 600, opts),
@@ -128,35 +148,35 @@ export class Env {
         let game_data = this.players.map(p => {return {
             health: p.health, died_at: p.died_at || null, damage_dealt: p.damage_dealt
         }})
-        this.game_data_callback(game_data)
+        setTimeout(() => this.game_data_callback(game_data), 0)
     }
-  register_events() {
-    const env = this
-    Events.on(this.engine, "collisionStart", function (e) { // cant seem to register event on players object themselves TODO: check this later
-      var pairs = e.pairs;
-      pairs = pairs.filter((el, _) => {
-        return el.bodyA.is_player || el.bodyB.is_player;
-      });
+    register_events() {
+        const env = this
+        Events.on(this.engine, "collisionStart", function (e) { // cant seem to register event on players object themselves TODO: check this later
+          var pairs = e.pairs;
+          pairs = pairs.filter((el, _) => {
+            return el.bodyA.player || el.bodyB.player;
+          });
 
-      // change object colours to show those starting a collision
-      for (var i = 0; i < pairs.length; i++) {
-        let pair = pairs[i];
-        let player = pair.bodyA.is_player ? pair.bodyA : pair.bodyB;
-        let other = !pair.bodyA.is_player ? pair.bodyA : pair.bodyB;
-        player = player.player;
-        if (other.isParticle){
-            Composite.remove(this.world, other)
-            explode(other.position, env.particle_factory)
-        }
-        let damage_dealt = player.take_damage(51);
-        if (other.owner === undefined){
-            //debugger
-        }
-        other.owner.damage_dealt += damage_dealt
-        env.update_game_data()
-      }
-    });
-  }
+          // change object colours to show those starting a collision
+          for (var i = 0; i < pairs.length; i++) {
+            let pair = pairs[i];
+            let player_shape = pair.bodyA.player ? pair.bodyA : pair.bodyB;
+            let other_shape = !pair.bodyA.player ? pair.bodyA : pair.bodyB;
+            let player = player_shape.player;
+            if (other_shape.isParticle){
+                Composite.remove(env.world, other_shape)
+                explode(other_shape.position, env.particle_factory)
+            }
+            let damage_dealt = player.take_damage(51);
+            if (other_shape.owner === undefined){
+                //debugger
+            }
+            other_shape.owner.damage_dealt += damage_dealt
+            env.update_game_data()
+          }
+        });
+    }
 
 
     title = "Env";

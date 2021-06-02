@@ -1,14 +1,27 @@
 /* eslint no-unused-vars: "off" */
+import {Env} from './env'
+import Player from './player'
 import { Engine, Render, Runner, Composites,
   Composite, Common, World, Bodies, Grid,
   MouseConstraint, Mouse, Body, Events, } from 'matter-js'
 
+declare module 'matter-js' {
+  interface Body {
+    isParticle: boolean
+    decaySpeed: number
+  }
+  interface Runner {
+    fps: any
+  }
+}
+
 
 export class ParticleEmitterFactory {
-    constructor(env) {
-        if(env.particles !== undefined) { throw new Error("Only one factory per env")}
+    env: Env
+
+    constructor(env: Env) {
+        if(env.particle_factory !== undefined) { throw new Error("Only one factory per env")}
         this.env = env
-        this.env.particles = {}
     }
     create(x, y, opts) {
         return new Emitter(x, y, {env: this.env, ...opts})
@@ -17,12 +30,19 @@ export class ParticleEmitterFactory {
 
 class Emitter{
     static numParticles = 0;
+    env: Env
+    particlesAdded: number
+    pos: {x, y}
+    options: any 
+    running: boolean
+    owner: Player
 
     constructor(x, y, {owner, env, ...options}) {
         this.env = env
         this.particlesAdded = 0;
         let defaults = Emitter.defaults;
         //Reset options to defaults
+        // let options = (...defaults, ...options)
         if (options === undefined) {
             options = defaults;
         }
@@ -140,7 +160,7 @@ class Emitter{
         this.particlesAdded = 0;
         this.addParticle();
     }
-    addParticle(duplicate) {
+    addParticle(duplicated=false) {
         let emitter = this
         let pos = this.pos;
         let posX = pos.x;
@@ -158,7 +178,7 @@ class Emitter{
         let collisionFilter = options.collisionFilter;
         let amountPerTick = options.amountPerTick;
 
-        this.numParticles++;
+        Emitter.numParticles++;
         this.particlesAdded++;
 
         if (this.options.parent !== undefined) {
@@ -182,7 +202,7 @@ class Emitter{
             }
         }
 
-        let name = "particle" + this.numParticles;
+        let name = "particle" + Emitter.numParticles;
         let size = random(pSize.min, pSize.max);
         let color = colors[Math.round(random(colors.length))];
         color = color !== undefined ? color : colors[0];
@@ -203,21 +223,22 @@ class Emitter{
             frictionStatic,
             inertia
         }))(this.options);
-        this.env.particles[name] = Bodies.polygon(posX, posY, 6, size, {
+        let particle = Bodies.polygon(posX, posY, 6, size, {
             isSensor: interactive,
-            isParticle: true,
             isStatic: this.options.isStatic,
             density: 1,
             restitution: this.options.restituition,
             frictionAir: frictionAir,
-            decaySpeed: options.decaySpeed,
             render: {
                 fillStyle: color
             },
             ...particle_opts
         });
-        let particle = this.env.particles[name];
+        particle.decaySpeed = options.decaySpeed
+        particle.isParticle = true
         particle.owner = this.owner
+        this.env.particles[name] = particle
+
         World.add(this.env.world, particle);
 
         if (collisionFilter !== undefined) {
@@ -263,7 +284,7 @@ class Emitter{
         }
         setTimeout(decreaseScale, delay);
 
-        if (this.particlesAdded < number && !duplicate) {
+        if (this.particlesAdded < number && !duplicated) {
             if (interval > 0) {
                 let framesPast = 0;
                 function waitForInterval() {
@@ -341,7 +362,7 @@ class Emitter{
     }
 }
 
-function random(min, max) {
+function random(min:any=undefined, max:any=undefined) {
         if (min === undefined && max === undefined) {
             min = 0;
             max = 1;

@@ -4,7 +4,8 @@ import {useMemo} from 'react'
 
 const game_data_columns = [
     { Header: 'Health', accessor: 'game.health', },
-    { Header: 'Died at', accessor: 'game.died_at', },
+    { Header: 'Died at', accessor: 'game.died_at_string', },
+    { Header: 'Rank', accessor: 'game.rank', },
     { Header: 'Damage Dealt', accessor: 'game.damage_dealt', },
 ]
 
@@ -17,12 +18,16 @@ export function Table(props) {
         return [columns_copy[0], ...game_data_columns, ...columns_copy.splice(1) ]
     }, [props.columns])
 
+    let rank = _rank_duplicate(stats.map(x => x.game ? -x.game.died_at : 0))
+
     for (var i=0; i < props.stats.length; i++) {
         if(props.game_data[i] === undefined) continue
         stats[i].game = {...props.game_data[i]}
         if(stats[i].game.died_at !== null)
-            stats[i].game.died_at = ((stats[i].game.died_at - props.start_time)/1000).toFixed(1) + 's'
+            stats[i].game.died_at_string = ((stats[i].game.died_at - props.start_time)/1000).toFixed(1) + 's'
+        stats[i].game.rank = rank[i]
     }
+
 
     //return <div><p>{JSON.stringify(stats)}</p><p>{JSON.stringify(columns)}</p></div>
     // return (<BTable>
@@ -71,3 +76,11 @@ export function Table(props) {
      </BTable>
    )
 }
+
+
+function _rank_duplicate(arr) {
+  const sorted = [...new Set(arr)].sort((a, b) => b - a);
+  const rank = new Map(sorted.map((x, i) => [x, i + 1]));
+  return arr.map((x) => rank.get(x));
+}
+
