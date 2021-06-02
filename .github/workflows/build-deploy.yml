@@ -17,9 +17,9 @@ jobs:
     - uses: borales/actions-yarn@v2.0.0
       with:
         cmd: build
-    - uses: borales/actions-yarn@v2.0.0
-      with:
-        cmd: test
+    # - uses: borales/actions-yarn@v2.0.0
+    #   with:
+    #     cmd: test
     - name: Upload production-ready build files
       uses: actions/upload-artifact@v2
       with:
