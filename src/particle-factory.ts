@@ -28,7 +28,7 @@ export class ParticleEmitterFactory {
     }
 }
 
-class Emitter{
+export class Emitter{
     static numParticles = 0;
     env: Env
     particlesAdded: number

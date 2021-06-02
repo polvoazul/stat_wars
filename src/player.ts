@@ -1,17 +1,26 @@
 /* eslint no-unused-vars: "off" */
 import Color from "color";
+import {Emitter} from "./particle-factory";
 import { Engine, Render, Runner, Composites,
   Composite, Common, World, Bodies, Grid,
   MouseConstraint, Mouse, Body, Events, } from 'matter-js'
+import { Env } from "./env";
 
-
+const pallete = '#F51720 #FA26A0 #F8D210 #2FF3E0'.split(' ').map(x => new Color(x))
 
 export default class Player {
-  ///////////////////// PLAYER
-  static get pallete() {
-    let out = '#F51720 #FA26A0 #F8D210 #2FF3E0'.split(' ').map(x => new Color(x))
-    return out
-  }
+    shape: Body
+    health: number
+    max_health: number
+    died_at: Date | null
+    damage_dealt: number
+    idx: number
+    env: Env
+    world: World
+    color: Color
+    original_color: Color
+    emitter! : Emitter
+
 
   static idx = 0;
   constructor(x, y, env) {
@@ -20,10 +29,11 @@ export default class Player {
     this.health = this.max_health;
     this.env = env;
     this.world = this.env.world;
-    this.color = Player.pallete[this.idx % Player.pallete.length]
-    this.original_color = Player.pallete[this.idx % Player.pallete.length]
+    this.color = pallete[this.idx % pallete.length]
+    this.original_color = pallete[this.idx % pallete.length]
     this.shape = this._build_shape(x, y);
     this.damage_dealt = 0
+    this.died_at = null
   }
 
   _build_shape(x, y) {
@@ -36,10 +46,9 @@ export default class Player {
       },
       collisionFilter: this.collision_filter
     };
-    let shape = Bodies.rectangle(x, y, 30, 30, opts);
-    shape.player = this;
-    shape.is_player = true;
-    return shape;
+    let shape = Bodies.rectangle(x, y, 30, 30, opts)
+    shape.player = this
+    return shape
   }
 
   get collision_filter() {
@@ -66,12 +75,12 @@ export default class Player {
     };
     // Composite.add(this.world, Bodies.polygon(300, 300, 10, 50, {restituition: 1, friction:0, frictionAir:0, frictionStatic:0}))
     // return
-    this.emmiter = this.env.particle_factory.create(
+    this.emitter = this.env.particle_factory.create(
       this.x,
       this.y,
       {owner: this, ...opts}
     );
-    this.emmiter.start();
+    this.emitter.start();
   }
 
   get x() {
@@ -96,8 +105,7 @@ export default class Player {
   die() {
     console.log(`Player ${this.idx} DIED`);
     Composite.remove(this.world, this.shape);
-    this.emmiter.stop();
-    this.dead = true;
+    this.emitter.stop();
     this.died_at = new Date()
   }
 }

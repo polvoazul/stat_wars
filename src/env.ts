@@ -5,7 +5,7 @@ import Matter, { Engine, Render, Runner, Composites,
   MouseConstraint, Mouse, Body, Events, } from 'matter-js'
 import {ParticleEmitterFactory} from "./particle-factory"
 import Color from "color";
-import Player from "./player.js"
+import Player from "./player"
 
 // @ts-ignore
 Matter.Resolver._restingThresh = 0.1 // solving bug: https://github.com/liabru/matter-js/issues/394
@@ -33,10 +33,10 @@ declare module 'matter-js' {
 window.H = 600;
 window.W = 800;
 
-type FUN = (...args: any[]) => any
+//type FUN = (arg:any) => any
 
 export class Env {
-    game_data_callback: FUN
+    game_data_callback: Function //| undefined
     engine!: Engine
     world: any
     particle_factory!: ParticleEmitterFactory
@@ -44,56 +44,56 @@ export class Env {
     runner!: Runner
     particles: {}
 
-    constructor(game_data_callback: ()=>void ){
+    constructor(game_data_callback?){
         this.game_data_callback = game_data_callback
         this.particles = {}
+
+        // create engine
+        this.engine = Engine.create({velocityIterations: 8});
+        // @ts-ignore
+        this.engine.gravity.scale = 0;
+        this.world = this.engine.world;
+
+        this.particle_factory = new ParticleEmitterFactory(this);
     }
 
-  setup(element_id: string) {
-    // create engine
-    this.engine = Engine.create({velocityIterations: 8});
-    // @ts-ignore
-    this.engine.gravity.scale = 0;
-    this.world = this.engine.world;
+    setup(element_id: string, {}) {
+        var render = Render.create({
+            element: document.getElementById(element_id) as HTMLElement,
+            engine: this.engine,
+            options: {
+                width: 800,
+                height: 600,
+                wireframes: false,
+                // @ts-ignore
+                showDebug: false,
+                showAngleIndicator: true,
+            }
+        });
+        this.render = render;
 
-    this.particle_factory = new ParticleEmitterFactory(this);
+        Render.run(render);
 
-    var render = Render.create({
-      element: document.getElementById(element_id) as HTMLElement,
-      engine: this.engine,
-      options: {
-        width: 800,
-        height: 600,
-        wireframes: false,
-        // @ts-ignore
-        showDebug: false,
-        showAngleIndicator: true,
-      }
-    });
-    this.render = render;
+        // create runner
+        this.runner = Runner.create();
 
-    Render.run(render);
+        this.build_play_field();
+        this.add_mouse_control();
 
-    // create runner
-    this.runner = Runner.create();
-
-    this.build_play_field();
-    this.add_mouse_control();
-
-    this.build_players();
+        this.build_players();
 
 
-    this.register_events();
+        this.register_events();
 
-    Runner.run(this.runner, this.engine);
+        Runner.run(this.runner, this.engine);
 
-    // fit the render viewport to the scene
-    Render.lookAt(render, {
-      min: { x: 0, y: 0 },
-      max: { x: 800, y: 600 }
-    });
-    this.update_game_data()
-  }
+        // fit the render viewport to the scene
+        Render.lookAt(render, {
+            min: { x: 0, y: 0 },
+            max: { x: 800, y: 600 }
+        });
+        this.update_game_data()
+    }
 
   add_mouse_control() {
     var mouse = Mouse.create(this.render.canvas),

@@ -79,8 +79,7 @@ export function Table(props) {
 
 
 function _rank_duplicate(arr) {
-  const sorted = [...new Set(arr)].sort((a, b) => b - a);
-  const rank = new Map(sorted.map((x, i) => [x, i + 1]));
-  return arr.map((x) => rank.get(x));
+    const sorted = [...new Set(arr)].sort((a: any, b: any) => b - a);
+    const rank = new Map(sorted.map((x, i) => [x, i + 1]));
+    return arr.map((x) => rank.get(x));
 }
-

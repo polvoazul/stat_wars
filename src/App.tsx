@@ -1,12 +1,16 @@
 import './App.css';
-import * as Env from './env.ts'
-import {React, useEffect} from 'react'
+import * as Env from './env'
+import React, {useEffect} from 'react'
 import {useState} from 'react'
-import {Table} from './table.js'
+import {Table} from './Table'
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from 'react-bootstrap/Button'
 
+
+declare global { interface Window {
+    env: Env.Env
+} }
 
 window.env = new Env.Env()
 
@@ -26,13 +30,13 @@ function App() {
 
     function restart() {
         window.env = new Env.Env(set_game_data_state)
-        window.document.getElementById("canvas").innerHTML = ""
+        window.document.getElementById("canvas")!.innerHTML = ""
         window.env.setup("canvas", game_init_data);
         set_start_time(new Date())
     }
 
     useEffect(() => {
-        window.document.getElementById("canvas").innerHTML = ""
+        window.document.getElementById("canvas")!.innerHTML = ""
         window.env.setup("canvas", game_init_data);
     }, [])
 
