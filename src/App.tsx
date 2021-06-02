@@ -7,6 +7,8 @@ import {Table} from './Table'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from 'react-bootstrap/Button'
 
+import {transform_stats_in_game_init_data} from "./stats"
+
 
 declare global { interface Window {
     env: Env.Env
@@ -20,7 +22,8 @@ const columns = [
     { Header: 'Gols | Max Health', accessor: 'goals', },
 ]
 
-const game_init_data = stats
+
+const game_init_data : Array<Object> = transform_stats_in_game_init_data(stats)
 
 function App() {
     let [game_data, set_game_data_state] = useState([]);

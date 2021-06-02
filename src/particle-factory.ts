@@ -1,9 +1,7 @@
 /* eslint no-unused-vars: "off" */
-import {Env} from './env'
+import { Bodies, Body, Composite, World } from 'matter-js'
+import { Env } from './env'
 import Player from './player'
-import { Engine, Render, Runner, Composites,
-  Composite, Common, World, Bodies, Grid,
-  MouseConstraint, Mouse, Body, Events, } from 'matter-js'
 
 declare module 'matter-js' {
   interface Body {

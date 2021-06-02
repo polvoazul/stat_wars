@@ -1,11 +1,9 @@
 /* eslint no-unused-vars: "off" */
-
-import Matter, { Engine, Render, Runner, Composites,
-  Composite, Common, World, Bodies, Grid,
-  MouseConstraint, Mouse, Body, Events, } from 'matter-js'
-import {ParticleEmitterFactory} from "./particle-factory"
-import Color from "color";
-import Player from "./player"
+import Matter, { Bodies, Composite, Engine,
+    Events, Mouse, MouseConstraint, Render, Runner
+} from 'matter-js';
+import { ParticleEmitterFactory } from "./particle-factory";
+import Player from "./player";
 
 // @ts-ignore
 Matter.Resolver._restingThresh = 0.1 // solving bug: https://github.com/liabru/matter-js/issues/394
@@ -57,7 +55,7 @@ export class Env {
         this.particle_factory = new ParticleEmitterFactory(this);
     }
 
-    setup(element_id: string, {}) {
+    setup(element_id: string, player_stats : Array<Object>) {
         var render = Render.create({
             element: document.getElementById(element_id) as HTMLElement,
             engine: this.engine,
@@ -80,8 +78,7 @@ export class Env {
         this.build_play_field();
         this.add_mouse_control();
 
-        this.build_players();
-
+        this.build_players(player_stats);
 
         this.register_events();
 
@@ -121,13 +118,23 @@ export class Env {
   players!: Array<Player>
 
 
-  build_players() {
-    let margin = 20, play_area = 100;
-    var p1 = new Player(0 + play_area + margin, window.H / 2, this);
-    var p2 = new Player(window.W - (play_area + margin), window.H / 2, this);
-    Composite.add(this.world, p1.shape);
-    Composite.add(this.world, p2.shape);
-    this.players = [p1, p2];
+  get_player_coords(n: 2) {
+    if(n!==2) throw new Error('only 2 players supported')
+    let margin = 21, play_area = 100;
+    return [
+        [0 + play_area + margin, window.H/2],
+        [window.W - (play_area + margin), window.H/2],
+    ]
+  }
+  build_players(player_stats) {
+    this.players = []
+    const player_coords = this.get_player_coords(player_stats.length)
+    player_stats.forEach( (p_stats, idx) => {
+        let [x, y] = player_coords[idx]
+        let p = new Player(x, y, this, p_stats);
+        this.players.push(p)
+        Composite.add(this.world, p.shape);
+    })
     this.players.map((p) => p.build_emitter());
   }
 

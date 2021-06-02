@@ -1,10 +1,8 @@
 /* eslint no-unused-vars: "off" */
 import Color from "color";
-import {Emitter} from "./particle-factory";
-import { Engine, Render, Runner, Composites,
-  Composite, Common, World, Bodies, Grid,
-  MouseConstraint, Mouse, Body, Events, } from 'matter-js'
+import { Bodies, Body, Composite, World } from 'matter-js';
 import { Env } from "./env";
+import { Emitter } from "./particle-factory";
 
 const pallete = '#F51720 #FA26A0 #F8D210 #2FF3E0'.split(' ').map(x => new Color(x))
 
@@ -20,12 +18,13 @@ export default class Player {
     color: Color
     original_color: Color
     emitter! : Emitter
+    name: string
 
 
   static idx = 0;
-  constructor(x, y, env) {
+  constructor(x, y, env, {max_health, name}) {
     this.idx = Player.idx++;
-    this.max_health = 100;
+    this.max_health = max_health;
     this.health = this.max_health;
     this.env = env;
     this.world = this.env.world;
@@ -34,6 +33,7 @@ export default class Player {
     this.shape = this._build_shape(x, y);
     this.damage_dealt = 0
     this.died_at = null
+    this.name = name
   }
 
   _build_shape(x, y) {
