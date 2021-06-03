@@ -34,7 +34,7 @@ window.W = 800;
 //type FUN = (arg:any) => any
 
 export class Env {
-    game_data_callback: Function //| undefined
+    game_state_callback: Function //| undefined
     engine!: Engine
     world: any
     particle_factory!: ParticleEmitterFactory
@@ -42,8 +42,8 @@ export class Env {
     runner!: Runner
     particles: {}
 
-    constructor(game_data_callback?){
-        this.game_data_callback = game_data_callback
+    constructor(game_state_callback?){
+        this.game_state_callback = game_state_callback
         this.particles = {}
 
         // create engine
@@ -89,7 +89,7 @@ export class Env {
             min: { x: 0, y: 0 },
             max: { x: 800, y: 600 }
         });
-        this.update_game_data()
+        this.update_game_state()
     }
 
   add_mouse_control() {
@@ -98,7 +98,7 @@ export class Env {
         mouse: mouse,
         // @ts-ignore
         constraint: {
-          stiffness: 0.2,
+          stiffness: 0.0002,
           render: {
             visible: true
           }
@@ -150,12 +150,12 @@ export class Env {
     ]);
   }
 
-    update_game_data() {
-        if (!this.game_data_callback) return
-        let game_data = this.players.map(p => {return {
+    update_game_state() {
+        if (!this.game_state_callback) return
+        let game_state = this.players.map(p => {return {
             health: p.health, died_at: p.died_at || null, damage_dealt: p.damage_dealt
         }})
-        setTimeout(() => this.game_data_callback(game_data), 0)
+        setTimeout(() => this.game_state_callback(game_state), 0)
     }
     register_events() {
         const env = this
@@ -180,7 +180,7 @@ export class Env {
                 //debugger
             }
             other_shape.owner.damage_dealt += damage_dealt
-            env.update_game_data()
+            env.update_game_state()
           }
         });
     }

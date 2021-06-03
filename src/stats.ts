@@ -1,4 +1,5 @@
 import * as dfd from "danfojs/src/index"
+import {Attributes} from './App'
 // @ts-ignore
 window.dfd = dfd
 
@@ -7,12 +8,16 @@ class Normalizer {
     normalize_stat(col, target) {
         let mean = col.mean()
         let multiplier = 10 ** Math.round(Math.log10(target / mean))
-        this.multipliers[col.name] = multiplier
+        let adjusts = [0.2, 0.5, 1, 2, 5]
+        let errors = adjusts.map( (adjust) => 
+            [Math.abs(target - (mean * multiplier * adjust)), adjust]) // to think: treat errors in log?
+        multiplier *= adjusts[argMin(errors)]
+        this.multipliers[col.column_names] = multiplier
         return col.mul(multiplier)
     }
 }
 
-export function transform_stats_in_attributes(stats : Object[], stats_to_attributes: Object) {
+export function transform_stats_in_attributes(stats : Object[], stats_to_attributes: Object) : [Attributes, {[key: string]: number}] {
     let attributes : Object[] = []
     for (let player of stats){
         let converted_player = {}
@@ -24,7 +29,7 @@ export function transform_stats_in_attributes(stats : Object[], stats_to_attribu
     }
     return normalize(attributes)
 }
-function normalize(attributes){
+function normalize(attributes) : [Attributes, {[key: string]: number}] {
     let normalizer = new Normalizer()
     let df = new dfd.DataFrame(attributes)
     // @ts-ignore
@@ -39,7 +44,7 @@ function normalize(attributes){
     let columns = out.columns
     out = out.values //array of arrays
     out = out.map(row => zip_key_vals(columns, row))
-    return [out as Object[] , normalizer.multipliers]
+    return [out as Attributes, normalizer.multipliers]
 }
 
 function zip_key_vals(keys, vals) {
@@ -48,3 +53,10 @@ function zip_key_vals(keys, vals) {
     rv[keys[i]] = vals[i];
   return rv;
 }
+
+
+
+
+const argFact = (compareFn) => (array) => array.map((el, idx) => [el, idx]).reduce(compareFn)[1]
+//const argMax = argFact((min, el) => (el[0] > min[0] ? el : min))
+const argMin = argFact((max, el) => (el[0] < max[0] ? el : max))
