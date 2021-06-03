@@ -1,5 +1,5 @@
 /* eslint no-unused-vars: "off" */
-import { Bodies, Body, Composite, World } from 'matter-js'
+import { Bodies, Body, Composite,} from 'matter-js'
 import { Env } from './env'
 import Player from './player'
 
@@ -158,7 +158,7 @@ export class Emitter{
         this.particlesAdded = 0;
         this.addParticle();
     }
-    addParticle(duplicated=false) {
+    addParticle(duplicated=false) { // debug / rewrite this
         let emitter = this
         let pos = this.pos;
         let posX = pos.x;
@@ -237,7 +237,7 @@ export class Emitter{
         particle.owner = this.owner
         this.env.particles[name] = particle
 
-        World.add(this.env.world, particle);
+        Composite.add(this.env.world, particle);
 
         if (collisionFilter !== undefined) {
             particle.collisionFilter = collisionFilter;
@@ -299,6 +299,7 @@ export class Emitter{
                                         }
                                     }
                                 } else {
+                                    //here
                                     emitter.addParticle();
                                 }
                             } else {
@@ -326,7 +327,7 @@ export class Emitter{
                 }
                 requestAnimationFrame(waitForInterval);
             } else {
-                this.addParticle();
+                emitter.addParticle();
             }
         }
     }

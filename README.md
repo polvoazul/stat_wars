@@ -1,5 +1,9 @@
-
 # [DEMO](http://polvoazul.github.io/stat_wars/)
+
+
+## Architecture
+
+
 
 ## Available Scripts
 

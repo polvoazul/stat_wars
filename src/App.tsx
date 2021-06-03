@@ -7,7 +7,13 @@ import {Table} from './Table'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from 'react-bootstrap/Button'
 
-import {transform_stats_in_game_init_data} from "./stats"
+import {transform_stats_in_attributes} from "./stats"
+
+/*
+* stats: real life stats
+* attributes: game initial attributes 
+* game_state: game current state
+*/
 
 
 declare global { interface Window {
@@ -16,38 +22,43 @@ declare global { interface Window {
 
 window.env = new Env.Env()
 
-const stats = [ { name: 'Vasco', goals: 2 }, { name: 'Botafogo', goals: 5 }, ]
-const columns = [
-    { Header: 'Nome | Player', accessor: 'name', },
-    { Header: 'Gols | Max Health', accessor: 'goals', },
-]
+const stats = [ { team: 'Vasco', goals: 2 }, { team: 'Botafogo', goals: 5 }, ]
+ 
+const stats_to_attributes = {
+    name: 'team',
+    max_health: 'goals'
+}
 
 
-const game_init_data : Array<Object> = transform_stats_in_game_init_data(stats)
+// @ts-ignore
+const [attributes, multipliers]: [Object[], {[key: string]: number}] = transform_stats_in_attributes(stats, stats_to_attributes)
 
 function App() {
-    let [game_data, set_game_data_state] = useState([]);
+    let [game_state, set_game_state] = useState([]);
     let [start_time, set_start_time] = useState(new Date());
-    window.env.game_data_callback = set_game_data_state
+    window.env.game_data_callback = set_game_state
 
 
     function restart() {
-        window.env = new Env.Env(set_game_data_state)
+        window.env = new Env.Env(set_game_state)
         window.document.getElementById("canvas")!.innerHTML = ""
-        window.env.setup("canvas", game_init_data);
+        window.env.setup("canvas", attributes);
         set_start_time(new Date())
     }
 
     useEffect(() => {
         window.document.getElementById("canvas")!.innerHTML = ""
-        window.env.setup("canvas", game_init_data);
+        window.env.setup("canvas", attributes);
     }, [])
 
 
     return (
         <div className="App">
             <Button onClick={restart}> RESTART </Button>
-            <Table stats={stats} columns={columns} game_data={game_data} start_time={start_time}/>
+            <Table stats={stats} stats_to_attributes={stats_to_attributes}
+                    game_data={game_state} start_time={start_time}
+                    multipliers={multipliers} 
+            />
         </div>
     );
 }

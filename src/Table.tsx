@@ -9,22 +9,24 @@ const game_data_columns = [
     { Header: 'Damage Dealt', accessor: 'game.damage_dealt', },
 ]
 
-export function Table(props) {
-    let stats = [...props.stats]
 
-    let columns = useMemo( () => {
-        const columns_copy = [...props.columns] // this is needed to prevent a bug where columns vanish, needs further investigation as to why
-        if (props.columns === undefined) return []
-        return [columns_copy[0], ...game_data_columns, ...columns_copy.splice(1) ]
-    }, [props.columns])
+export function Table({stats, stats_to_attributes, game_data, start_time, multipliers}) {
+    stats = [...stats]
+    let all_columns = useMemo( () => {
+        const columns = [
+            { Header: 'Player = Nome', accessor: stats_to_attributes.name, },
+            { Header: 'Gols | Max Health', accessor: stats_to_attributes.max_health, },
+        ]
+        return [columns[0], ...game_data_columns, ...columns.splice(1) ]
+    }, [stats_to_attributes])
 
     let rank = _rank_duplicate(stats.map(x => x.game ? -x.game.died_at : 0))
 
-    for (var i=0; i < props.stats.length; i++) {
-        if(props.game_data[i] === undefined) continue
-        stats[i].game = {...props.game_data[i]}
+    for (var i=0; i < stats.length; i++) {
+        if(game_data[i] === undefined) continue
+        stats[i].game = {...game_data[i]}
         if(stats[i].game.died_at !== null)
-            stats[i].game.died_at_string = ((stats[i].game.died_at - props.start_time)/1000).toFixed(1) + 's'
+            stats[i].game.died_at_string = ((stats[i].game.died_at - start_time)/1000).toFixed(1) + 's'
         stats[i].game.rank = rank[i]
     }
 
@@ -40,7 +42,7 @@ export function Table(props) {
         headerGroups,
         rows,
         prepareRow
-    } = useTable({columns: columns, data: stats})
+    } = useTable({columns: all_columns, data: stats})
 
    return (
      <BTable {...getTableProps()} striped bordered hover >
