@@ -1,9 +1,8 @@
 import BTable from 'react-bootstrap/Table'
 import {useTable, Column} from 'react-table'
-import {useEffect, useMemo, useRef, useState} from 'react'
+import {useEffect, useMemo, useRef} from 'react'
 import {Attributes} from './App'
 import clone from 'just-clone'
-import * as mdb from 'mdb-ui-kit'; 
 
 const game_state_columns = [
     { Header: 'Health', accessor: 'game.health', Cell: GameStateCell},

@@ -67,7 +67,7 @@ function App() {
 
     return (
         <Router>
-            <Route path="/debug">
+            <Route path={/.*\/debug/}>
                 <Debugger env={window.env}/>
             </Route>
             <Route path="/">
