@@ -27,18 +27,22 @@ declare global { interface Window {
 
 window.env = new Env.Env()
 
-const stats: Stats = [ { team: 'Vasco', goals: 2 }, { team: 'Botafogo', goals: 5 }, ]
+const stats: Stats = [
+    { team: 'Vasco', goals: 52, victories: 22 },
+    { team: 'Botafogo', goals: 65, victories: 22},
+]
  
 const stats_to_attributes = {
     name: 'team',
-    max_health: 'goals'
+    max_health: 'goals',
+    damage_per_ball: 'victories'
 }
 
 
 const [attributes, multipliers]: [Attributes, {[key: string]: number}] = transform_stats_in_attributes(stats, stats_to_attributes)
 
 function App() {
-    let [game_state, set_game_state] = useState([]);
+    let [game_state, set_game_state] = useState(null);
     let [start_time, set_start_time] = useState(new Date());
     window.env.game_state_callback = set_game_state
 

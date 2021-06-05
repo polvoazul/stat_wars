@@ -19,10 +19,11 @@ export default class Player {
     original_color: Color
     emitter! : Emitter
     name: string
+    damage_per_ball: number
 
 
   static idx = 0;
-  constructor(x, y, env, {max_health, name}) {
+  constructor(x, y, env, {max_health, name, damage_per_ball}) {
     this.idx = Player.idx++;
     this.max_health = max_health;
     this.health = this.max_health;
@@ -31,6 +32,7 @@ export default class Player {
     this.color = pallete[this.idx % pallete.length]
     this.original_color = pallete[this.idx % pallete.length]
     this.shape = this._build_shape(x, y);
+    this.damage_per_ball = damage_per_ball
     this.damage_dealt = 0
     this.died_at = null
     this.name = name

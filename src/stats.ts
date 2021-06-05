@@ -1,16 +1,15 @@
 import * as dfd from "danfojs/src/index"
 import {Attributes} from './App'
-// @ts-ignore
-window.dfd = dfd
 
-class Normalizer {
+export class Normalizer {
     multipliers : {[key: string]: number} = {}
-    normalize_stat(col, target) {
+    normalize_stat(col, target) : dfd.Series {
         let mean = col.mean()
         let multiplier = 10 ** Math.round(Math.log10(target / mean))
         let adjusts = [0.2, 0.5, 1, 2, 5]
         let errors = adjusts.map( (adjust) => 
-            [Math.abs(target - (mean * multiplier * adjust)), adjust]) // to think: treat errors in log?
+            Math.abs(target - (mean * multiplier * adjust))) // to think: treat errors in log?
+        //if(target === 33) { debugger}
         multiplier *= adjusts[argMin(errors)]
         this.multipliers[col.column_names] = multiplier
         return col.mul(multiplier)
@@ -36,8 +35,9 @@ function normalize(attributes) : [Attributes, {[key: string]: number}] {
     window.df = df
     let out
     out = {
-        max_health: normalizer.normalize_stat(df.max_health, 100),
-        name: df.name
+        damage_per_ball: normalizer.normalize_stat(df.damage_per_ball, 20)
+        ,max_health: normalizer.normalize_stat(df.max_health, 100)
+        ,name: df.name
     }
     for(let k in out) {out[k] = out[k].values}
     out = (new dfd.DataFrame(out))

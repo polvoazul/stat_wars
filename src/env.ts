@@ -42,8 +42,8 @@ export class Env {
     runner!: Runner
     particles: {}
 
+
     constructor(game_state_callback?){
-        this.game_state_callback = game_state_callback
         this.particles = {}
 
         // create engine
@@ -53,6 +53,7 @@ export class Env {
         this.world = this.engine.world;
 
         this.particle_factory = new ParticleEmitterFactory(this);
+        this.game_state_callback = game_state_callback
     }
 
     setup(element_id: string, player_stats : Array<Object>) {
@@ -79,6 +80,7 @@ export class Env {
         this.add_mouse_control();
 
         this.build_players(player_stats);
+        this.update_game_state()
 
         this.register_events();
 
@@ -89,7 +91,6 @@ export class Env {
             min: { x: 0, y: 0 },
             max: { x: 800, y: 600 }
         });
-        this.update_game_state()
     }
 
   add_mouse_control() {
@@ -175,11 +176,12 @@ export class Env {
                 Composite.remove(env.world, other_shape)
                 explode(other_shape.position, env.particle_factory)
             }
-            let damage_dealt = player.take_damage(51);
+            let damage = other_shape.owner.damage_per_ball
+            player.take_damage(damage);
             if (other_shape.owner === undefined){
-                //debugger
+                debugger
             }
-            other_shape.owner.damage_dealt += damage_dealt
+            other_shape.owner.damage_dealt += damage
             env.update_game_state()
           }
         });
