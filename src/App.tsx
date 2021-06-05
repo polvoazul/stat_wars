@@ -9,6 +9,11 @@ import Button from 'react-bootstrap/Button'
 
 import {transform_stats_in_attributes} from "./stats"
 
+import { BrowserRouter as Router, Route, } from "react-router-dom";
+
+import Debugger from "./Debugger"
+
+
 /*
 * stats: real life stats
 * attributes: game initial attributes 
@@ -61,14 +66,21 @@ function App() {
 
 
     return (
-        <div className="App">
-            <Button onClick={restart}> RESTART </Button>
-            <Table stats={stats} attributes={attributes} 
-                    stats_to_attributes={stats_to_attributes}
-                    game_state={game_state} start_time={start_time}
-                    multipliers={multipliers} 
-            />
-        </div>
+        <Router>
+            <Route path="/debug">
+                <Debugger/>
+            </Route>
+            <Route path="/">
+            <div className="App">
+                <Button onClick={restart}> RESTART </Button>
+                <Table stats={stats} attributes={attributes} 
+                        stats_to_attributes={stats_to_attributes}
+                        game_state={game_state} start_time={start_time}
+                        multipliers={multipliers} 
+                />
+            </div>
+            </Route>
+        </Router>
     );
 }
 

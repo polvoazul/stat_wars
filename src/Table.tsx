@@ -1,5 +1,5 @@
 import BTable from 'react-bootstrap/Table'
-import {useTable} from 'react-table'
+import {useTable, Column} from 'react-table'
 import {useMemo} from 'react'
 import {Attributes} from './App'
 import clone from 'just-clone'
@@ -16,13 +16,20 @@ const attribute_labels = {
     damage_per_ball: 'Damage per Ball'
 }
 
-function mount_column(attribute, stat, multiplier ): {Header: string, accessor: string} {
+//type Column = {Header?: string , accessor: string, stat_formula?: string, attribute_label?: string }
+
+function mount_column(attribute, stat, multiplier ): Column {
+    let multiplier_str = multiplier ? ` x ${multiplier}` : ''
     return {
-        Header: `${attribute_labels[attribute]} = ${stat} ${multiplier ? ` x ` + multiplier : ''}`,
+        Header: Header({
+            attribute_label: `${attribute_labels[attribute]}`,
+            stat: stat,
+            multiplier_str: multiplier_str
+        }),
         accessor: attribute
     }
 }
-function mount_columns(attributes: Attributes, stats_to_attributes, multipliers) {
+function mount_columns(attributes: Attributes, stats_to_attributes, multipliers) : Column[] {
     return Object.entries(stats_to_attributes).map(([k, _]) => {
         return mount_column(k, stats_to_attributes[k], multipliers[k])
     })
@@ -35,7 +42,7 @@ export function Table({stats, attributes, stats_to_attributes, game_state,
         return [columns[0], ...game_state_columns, ...columns.splice(1) ] // putting name first
     }, [attributes, multipliers, stats_to_attributes])
 
-    let final_data = mount_final_data(game_state, attributes, start_time)
+    let final_data = useMemo(() => mount_final_data(game_state, attributes, start_time), [game_state, attributes, start_time])
 
     //return <div><p>{JSON.stringify(stats)}</p><p>{JSON.stringify(columns)}</p></div>
     // return (<BTable>
@@ -57,7 +64,7 @@ export function Table({stats, attributes, stats_to_attributes, game_state,
            <tr {...headerGroup.getHeaderGroupProps()}>
              {headerGroup.headers.map(column => (
                <th {...column.getHeaderProps()} >
-                 {column.render('Header')}
+                   {column.render('Header')}
                </th>
              ))}
            </tr>
@@ -83,6 +90,23 @@ export function Table({stats, attributes, stats_to_attributes, game_state,
        </tbody>
      </BTable>
    )
+}
+
+function Header({attribute_label, stat, multiplier_str}){
+    return (
+        <div className="px-0 mx-0 text-nowrap">
+            <span className="pr-0 flex-grow-0 "> {/* attribute */}
+                {attribute_label}
+            </span>
+            <span className="pl-0 flex-grow-0"> {/* formula */}
+                <span className="font-weight-light">
+                    <span> {" = "} </span>
+                    <span className="text-info font-weight-bold" >{stat}</span>
+                    <span>{multiplier_str}</span>
+                </span>
+            </span>
+        </div>
+    )
 }
 
 function mount_final_data(game_state, attributes, start_time){
