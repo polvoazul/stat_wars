@@ -1,14 +1,15 @@
 import BTable from 'react-bootstrap/Table'
 import {useTable, Column} from 'react-table'
-import {useMemo} from 'react'
+import {useEffect, useMemo, useRef, useState} from 'react'
 import {Attributes} from './App'
 import clone from 'just-clone'
+import * as mdb from 'mdb-ui-kit'; 
 
 const game_state_columns = [
-    { Header: 'Health', accessor: 'game.health', },
-    { Header: 'Died at', accessor: 'game.died_at_string', },
-    { Header: 'Rank', accessor: 'game.rank', },
-    { Header: 'Damage Dealt', accessor: 'game.damage_dealt', },
+    { Header: 'Health', accessor: 'game.health', Cell: GameStateCell},
+    { Header: 'Died at', accessor: 'game.died_at_string', Cell: GameStateCell},
+    { Header: 'Rank', accessor: 'game.rank', Cell: GameStateCell},
+    { Header: 'Damage Dealt', accessor: 'game.damage_dealt', Cell: GameStateCell},
 ]
 const attribute_labels = {
     max_health: 'Max Health',
@@ -26,6 +27,7 @@ function mount_column(attribute, stat, multiplier ): Column {
             stat: stat,
             multiplier_str: multiplier_str
         }),
+        Cell: Cell,
         accessor: attribute
     }
 }
@@ -76,13 +78,11 @@ export function Table({stats, attributes, stats_to_attributes, game_state,
            return (
              <tr {...row.getRowProps()}>
                {row.cells.map(cell => {
-                 return (
-                   <td
-                     {...cell.getCellProps()}
-                   >
-                     {cell.render('Cell')}
+                  return (
+                   <td {...cell.getCellProps()} >
+                       {cell.render('Cell')}
                    </td>
-                 )
+                  )
                })}
              </tr>
            )
@@ -92,8 +92,25 @@ export function Table({stats, attributes, stats_to_attributes, game_state,
    )
 }
 
+function Cell({column, row, value, cell}){
+    return ( <div className=''> {value} </div>)
+}
+function GameStateCell({column, row, value, cell}){
+    let div : any = useRef(null)
+    let old_v = useRef(value)
+    useEffect(() =>{
+        if (old_v.current !== value) {
+            div.current.className = ''
+            setTimeout(()=>{
+                div.current.className = 'color-animation'
+            }, 30)
+        }
+        old_v.current = value
+    })
+    return ( <div className='' ref={div}> {value} </div>)
+}
 function Header({attribute_label, stat, multiplier_str}){
-    return (
+    let out = (
         <div className="px-0 mx-0 text-nowrap">
             <span className="pr-0 flex-grow-0 "> {/* attribute */}
                 {attribute_label}
@@ -107,6 +124,7 @@ function Header({attribute_label, stat, multiplier_str}){
             </span>
         </div>
     )
+    return out
 }
 
 function mount_final_data(game_state, attributes, start_time){
@@ -114,8 +132,7 @@ function mount_final_data(game_state, attributes, start_time){
         return attributes
     }
 
-    let rank = _rank_duplicate(game_state.map((x: { died_at: number } ) => x.died_at !== null ? -x.died_at : 0))
-
+    let rank = _rank_duplicate(game_state.map((x) => x.died_at !== null ? x.died_at.getTime() : Infinity))
     let final_data = clone(attributes)
     for (var i=0; i < final_data.length; i++) {
         final_data[i].game = {...game_state[i]}
