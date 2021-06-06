@@ -19,3 +19,4 @@
 * defense balls and offense balls
     * defense balls are balls with large mass and large air friction (they stop in front of player)
 * Super ball spawn chance: extra mass/damage
+* Super ball that aglutinates other balls
