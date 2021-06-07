@@ -34,8 +34,16 @@ export type Attributes = _StringKeyObject[]
 
 const stats_to_attributes = {
     name: 'time',
-    max_health: 'total_gols',
-    damage_per_ball: 'total_vitorias'
+    max_health: 'defesas_total',
+    balls_per_second: 'gols_total',
+    damage_per_ball: 'vitorias_total'
+}
+
+export const attribute_labels = {
+    name: 'Player Name',
+    max_health: 'Max Health',
+    balls_per_second: 'Balls per Second',
+    damage_per_ball: 'Damage per Ball'
 }
 
 let all_stats : Stats = stats_with_metadata.data
@@ -86,6 +94,7 @@ function Game({stats, }) {
 
     useEffect(() => {
         rebuild_canvas(canvas, attributes, set_game_state)
+        return () => {window.env.destroy()}
     }, [attributes])
 
     return ( <div className="container">

@@ -20,10 +20,11 @@ export default class Player {
     emitter! : Emitter
     name: string
     damage_per_ball: number
+    balls_per_second: number
 
 
   static idx = 0;
-  constructor(x, y, env, {max_health, name, damage_per_ball}) {
+  constructor(x, y, env, {max_health, name, damage_per_ball, balls_per_second}) {
     this.idx = Player.idx++;
     this.max_health = max_health;
     this.health = this.max_health;
@@ -33,6 +34,7 @@ export default class Player {
     this.original_color = pallete[this.idx % pallete.length]
     this.shape = this._build_shape(x, y);
     this.damage_per_ball = damage_per_ball
+    this.balls_per_second = balls_per_second
     this.damage_dealt = 0
     this.died_at = null
     this.name = name
@@ -62,7 +64,7 @@ export default class Player {
   build_emitter() {
     let opts = {
       amount: Infinity,
-      interval: 1001, // in millis
+      interval: 1000 / this.balls_per_second,
       amountPerTick: 1, // batch size
       size: { min: 5, max: 20 },
       delay: 1000 * 10,

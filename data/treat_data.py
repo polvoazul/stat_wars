@@ -14,10 +14,7 @@ from collections import namedtuple
 Stat = namedtuple('Stat', 'agg bigger_is_better kind')
 
 AGGREGATES = {
-    'colocacao':                 Stat(agg='last', bigger_is_better=False, kind='any')
-    ,'vitorias':                 Stat(agg='sum',  bigger_is_better=True,  kind='any')
-    ,'valor_equipe_titular':     Stat(agg='mean', bigger_is_better=True,  kind='any')
-    ,'idade_media_titular':      Stat(agg='mean', bigger_is_better=None,  kind='any')
+    'vitorias':                  Stat(agg='sum',  bigger_is_better=True,  kind='any')
     ,'gols':                     Stat(agg='sum',  bigger_is_better=True,  kind='offensive')
     ,'gols_1_tempo':             Stat(agg='sum',  bigger_is_better=True,  kind='offensive')
     ,'gols_tomados':             Stat(agg='sum',  bigger_is_better=False, kind='defensive')
@@ -29,10 +26,13 @@ AGGREGATES = {
     ,'chutes_fora':              Stat(agg='sum',  bigger_is_better=False, kind='offensive')
     ,'chutes_bola_parada':       Stat(agg='sum',  bigger_is_better=True,  kind='offensive')
 }
+AGGREGATES_NON_SPLIT = { # TODO: implement
+    'colocacao':                 Stat(agg='last', bigger_is_better=False, kind='any')
+    ,'valor_equipe_titular':     Stat(agg='mean', bigger_is_better=True,  kind='any')
+    ,'idade_media_titular':      Stat(agg='mean', bigger_is_better=None,  kind='any')
+}
 OTHERS = {
     'publico_mandante':          Stat(agg=None, bigger_is_better=True,  kind='any')
-    ,'total_gols':               Stat(agg=None, bigger_is_better=True,  kind='offense')
-    ,'total_vitorias':                 Stat(agg=None, bigger_is_better=True,  kind='any')
 }
 
 def get_stats_of_type(type_='mandante'):
@@ -48,11 +48,13 @@ def get_publico_mandante():
     return out
 
 team_stats = get_stats_of_type('mandante').join(get_stats_of_type('visitante')).join(get_publico_mandante())
-team_stats['total_gols'] = team_stats.gols_mandante + team_stats.gols_visitante
-team_stats['total_vitorias'] = team_stats.vitorias_mandante + team_stats.vitorias_visitante
+
+for s in AGGREGATES:
+    team_stats[s + '_total'] = team_stats[f'{s}_mandante'] + team_stats[f'{s}_visitante']
 
 COLUMNS = ({f'{k}_mandante': v for k, v in AGGREGATES.items()} |
         {f'{k}_visitante': v for k, v in AGGREGATES.items()} |
+        {f'{k}_total': v for k, v in AGGREGATES.items()} |
         {k: v for k, v in OTHERS.items()}
 )
 team_stats = team_stats.rename(columns={k: f'{k}|bigger_is_better={json.dumps(v.bigger_is_better)}|kind={v.kind}' for k, v in COLUMNS.items()})

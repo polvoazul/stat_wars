@@ -1,7 +1,7 @@
 import BTable from 'react-bootstrap/Table'
 import {useTable, Column} from 'react-table'
 import {useEffect, useMemo, useRef} from 'react'
-import {Attributes} from './App'
+import {Attributes, attribute_labels} from './App'
 import clone from 'just-clone'
 
 const game_state_columns = [
@@ -10,11 +10,7 @@ const game_state_columns = [
     { Header: 'Rank', accessor: 'game.rank', Cell: GameStateCell},
     { Header: 'Damage Dealt', accessor: 'game.damage_dealt', Cell: GameStateCell},
 ]
-const attribute_labels = {
-    max_health: 'Max Health',
-    name: 'Player Name',
-    damage_per_ball: 'Damage per Ball'
-}
+
 
 //type Column = {Header?: string , accessor: string, stat_formula?: string, attribute_label?: string }
 

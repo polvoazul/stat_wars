@@ -3,7 +3,7 @@ import {Attributes} from './App'
 
 export class Normalizer {
     multipliers : {[key: string]: number} = {}
-    normalize_stat(col, target) : dfd.Series {
+    normalize_stat(col: dfd.Series, target) : dfd.Series {
         let mean = col.mean()
         let multiplier = 10 ** Math.round(Math.log10(target / mean))
         let adjusts = [0.2, 0.5, 1, 2, 5]
@@ -12,7 +12,8 @@ export class Normalizer {
         //if(target === 33) { debugger}
         multiplier *= adjusts[argMin(errors)]
         this.multipliers[col.column_names] = multiplier
-        return col.mul(multiplier)
+        const n_decimals = 2 - Math.floor(Math.log10(target)) + 1 //TODO: test this better 
+        return col.mul(multiplier).round(n_decimals)
     }
 }
 
@@ -39,6 +40,7 @@ function normalize(attributes) : [Attributes, {[key: string]: number}] {
     out = {
         damage_per_ball: normalizer.normalize_stat(df.damage_per_ball, 20)
         ,max_health: normalizer.normalize_stat(df.max_health, 100)
+        ,balls_per_second: normalizer.normalize_stat(df.balls_per_second, 1)
         ,name: df.name
     }
     for(let k in out) {out[k] = out[k].values}

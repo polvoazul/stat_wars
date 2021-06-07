@@ -34,7 +34,7 @@ window.W = 800;
 //type FUN = (arg:any) => any
 
 export class Env {
-    game_state_callback: Function //| undefined
+    game_state_callback: Function | undefined
     engine!: Engine
     world: any
     particle_factory!: ParticleEmitterFactory
@@ -61,6 +61,7 @@ export class Env {
         Engine.clear(this.engine);
         Render.stop(this.render);
         Runner.stop(this.runner);
+        this.game_state_callback = undefined
     }
 
     setup(element_id: string, player_stats : Array<Object>) {
@@ -163,7 +164,7 @@ export class Env {
         let game_state = this.players.map(p => {return {
             health: p.health, died_at: p.died_at || null, damage_dealt: p.damage_dealt
         }})
-        setTimeout(() => this.game_state_callback(game_state), 0)
+        setTimeout(() => this.game_state_callback!(game_state), 0)
     }
     register_events() {
         const env = this
