@@ -88,7 +88,7 @@ function Game({stats, }) {
         rebuild_canvas(canvas, attributes, set_game_state)
     }, [attributes])
 
-    return ( <div>
+    return ( <div className="container">
         <Table stats={stats} attributes={attributes} 
                 stats_to_attributes={stats_to_attributes}
                 game_state={game_state} start_time={start_time}

@@ -29,13 +29,21 @@ export default function StatSelector({all_stats, filtered_stats, set_filtered_st
         set_filtered_stats(null)
     }
     return (
-    <div style={{maxWidth:"300px"}}>
-        <div> Player 1:
-            <Select ref={s1} name="Player 1" isDisabled={players_selected} onChange={update(p1)} options={teams}/>
+        <div className='container'>
+        <div className='row'>
+            <div className='col-4' style={{ maxWidth: "3000px" }}>
+                <div> Player 1:
+            <Select ref={s1} name="Player 1" isDisabled={players_selected} onChange={update(p1)} options={teams} />
+                </div>
+                <div> Player 2:
+            <Select ref={s2} name="Player 2" isDisabled={players_selected} onChange={update(p2)} options={teams} />
+                </div>
+                {players_selected ? <Button onClick={reset}> RESET </Button> : null}
+            </div>
+            <div className='col'>
+                INFO
+            </div>
         </div>
-        <div> Player 2:
-            <Select ref={s2} name="Player 2" isDisabled={players_selected} onChange={update(p2)} options={teams}/>
         </div>
-        {players_selected ? <Button onClick={reset}> RESET </Button> : null}
-    </div>)
+    )
 }
