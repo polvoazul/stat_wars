@@ -19,5 +19,9 @@ test('normalize stats', () => {
     let [out3, mul3] = _test(22, 20)
     expect(out3).toBe(22)
     expect(mul3).toBe(1)
+
+    let [out4, mul4] = _test(31.5, 1)
+    expect(out4).toBe(0.63)
+    expect(mul4).toBe(0.02)
 });
 

@@ -15,7 +15,7 @@ const game_state_columns = [
 //type Column = {Header?: string , accessor: string, stat_formula?: string, attribute_label?: string }
 
 function mount_column(attribute, stat, multiplier ): Column {
-    let multiplier_str = multiplier ? ` x ${multiplier}` : ''
+    let multiplier_str = multiplier ? ` x ${multiplier<1 ? multiplier.toPrecision(1): multiplier}` : ''
     return {
         Header: Header({
             attribute_label: `${attribute_labels[attribute]}`,

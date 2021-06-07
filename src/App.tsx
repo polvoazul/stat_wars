@@ -104,6 +104,7 @@ function Game({stats, }) {
                 multipliers={multipliers} 
         />
         <Button onClick={restart_sim}> Restart Simulation </Button>
+        <div className="mt-1"></div>
         <div id="canvas" ref={canvas}></div>
     </div>)
 }
