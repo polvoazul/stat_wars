@@ -22,6 +22,8 @@ export function transform_stats_in_attributes(stats : Object[], stats_to_attribu
         let converted_player = {}
         for (let to in stats_to_attributes){
             let from = stats_to_attributes[to]
+            if(player[from] === undefined) throw new Error(`${from} not found in stats: ${JSON.stringify(player)}`);
+            
             converted_player[to] = player[from]
         }
         attributes.push(converted_player)
@@ -45,6 +47,10 @@ function normalize(attributes) : [Attributes, {[key: string]: number}] {
     out = out.values //array of arrays
     out = out.map(row => zip_key_vals(columns, row))
     return [out as Attributes, normalizer.multipliers]
+}
+
+export function dfToNative(df){
+    return df.values.map(row => zip_key_vals(df.columns, row))
 }
 
 function zip_key_vals(keys, vals) {

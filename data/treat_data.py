@@ -6,8 +6,8 @@ df = pd.read_csv('./data/brasileirao.csv')
 df.columns = [c.replace('man', 'mandante').replace('vis', 'visitante') for c in df.columns]
 df['gols_tomados_mandante'] = df['gols_visitante']
 df['gols_tomados_visitante'] = df['gols_mandante']
-df['vitoria_mandante'] = df.gols_mandante > df.gols_visitante
-df['vitoria_visitante'] = df.gols_mandante < df.gols_visitante
+df['vitorias_mandante'] = df.gols_mandante > df.gols_visitante
+df['vitorias_visitante'] = df.gols_mandante < df.gols_visitante
 df =  df.sort_values(['ano_campeonato', 'rodada'])
 
 from collections import namedtuple
@@ -15,7 +15,7 @@ Stat = namedtuple('Stat', 'agg bigger_is_better kind')
 
 AGGREGATES = {
     'colocacao':                 Stat(agg='last', bigger_is_better=False, kind='any')
-    ,'vitoria':                  Stat(agg='sum',  bigger_is_better=True,  kind='any')
+    ,'vitorias':                 Stat(agg='sum',  bigger_is_better=True,  kind='any')
     ,'valor_equipe_titular':     Stat(agg='mean', bigger_is_better=True,  kind='any')
     ,'idade_media_titular':      Stat(agg='mean', bigger_is_better=None,  kind='any')
     ,'gols':                     Stat(agg='sum',  bigger_is_better=True,  kind='offensive')
@@ -30,7 +30,9 @@ AGGREGATES = {
     ,'chutes_bola_parada':       Stat(agg='sum',  bigger_is_better=True,  kind='offensive')
 }
 OTHERS = {
-    'publico_mandante':          Stat(agg='mean', bigger_is_better=True,  kind='any')
+    'publico_mandante':          Stat(agg=None, bigger_is_better=True,  kind='any')
+    ,'total_gols':               Stat(agg=None, bigger_is_better=True,  kind='offense')
+    ,'total_vitorias':                 Stat(agg=None, bigger_is_better=True,  kind='any')
 }
 
 def get_stats_of_type(type_='mandante'):
@@ -46,6 +48,8 @@ def get_publico_mandante():
     return out
 
 team_stats = get_stats_of_type('mandante').join(get_stats_of_type('visitante')).join(get_publico_mandante())
+team_stats['total_gols'] = team_stats.gols_mandante + team_stats.gols_visitante
+team_stats['total_vitorias'] = team_stats.vitorias_mandante + team_stats.vitorias_visitante
 
 COLUMNS = ({f'{k}_mandante': v for k, v in AGGREGATES.items()} |
         {f'{k}_visitante': v for k, v in AGGREGATES.items()} |
@@ -54,7 +58,7 @@ COLUMNS = ({f'{k}_mandante': v for k, v in AGGREGATES.items()} |
 team_stats = team_stats.rename(columns={k: f'{k}|bigger_is_better={json.dumps(v.bigger_is_better)}|kind={v.kind}' for k, v in COLUMNS.items()})
 
 team_stats.to_csv('data/brasileirao_stats.csv')
-team_stats.to_json('data/brasileirao_stats.json', orient='records')
+team_stats.reset_index().to_json('src/brasileirao_stats.json', orient='records')
 
 
 #############################

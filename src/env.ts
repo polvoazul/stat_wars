@@ -1,6 +1,6 @@
 /* eslint no-unused-vars: "off" */
 import Matter, { Bodies, Composite, Engine,
-    Events, Mouse, MouseConstraint, Render, Runner
+    Events, Mouse, MouseConstraint, Render, Runner, 
 } from 'matter-js';
 import { ParticleEmitterFactory } from "./particle-factory";
 import Player from "./player";
@@ -54,6 +54,13 @@ export class Env {
 
         this.particle_factory = new ParticleEmitterFactory(this);
         this.game_state_callback = game_state_callback
+    }
+
+    destroy(){
+        Composite.clear(this.world, false, true);
+        Engine.clear(this.engine);
+        Render.stop(this.render);
+        Runner.stop(this.runner);
     }
 
     setup(element_id: string, player_stats : Array<Object>) {
