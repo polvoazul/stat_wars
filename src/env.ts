@@ -1,6 +1,6 @@
 /* eslint no-unused-vars: "off" */
 import Matter, { Bodies, Composite, Engine,
-    Events, Mouse, MouseConstraint, Render, Runner, 
+    Events, Mouse, MouseConstraint, Render, Runner, Vector, 
 } from 'matter-js';
 import { ParticleEmitterFactory } from "./particle-factory";
 import Player from "./player";
@@ -35,6 +35,7 @@ export class Env {
     runner!: Runner
     particles: {}
     H: number; W: number
+    walls!: Matter.Bodies[];
 
     constructor(game_state_callback?, opts?: {H?, W?}){
         this.particles = {}
@@ -67,7 +68,7 @@ export class Env {
                 height: this.H,
                 wireframes: false,
                 // @ts-ignore
-                showDebug: true,
+                showDebug: false,
                 showAngleIndicator: true,
             }
         });
@@ -80,7 +81,6 @@ export class Env {
 
         this.add_mouse_control();
         this.build_players(player_stats);
-        this.build_play_field();
 
         this.update_game_state()
 
@@ -122,29 +122,39 @@ export class Env {
     }
     players!: Array<Player>
 
-    get_player_coords(n: 2) {
-        if (n !== 2) throw new Error('only 2 players supported')
-        let margin = 21, play_area = 100;
-        return [
-            [0 + play_area + margin, this.H / 2],
-            [this.W - (play_area + margin), this.H / 2],
-        ]
+    get_player_coords(idx, n) {
+        if (n < 2) throw new Error('only >= 2 players supported')
+        let margin = 120
+        if (n == 2) {
+            return [
+                {x: 0 + margin, y: this.H / 2},
+                {x: this.W - (margin), y: this.H / 2},
+            ][idx]
+        }
+        else {
+            let wall: Vector[] = (this.walls[idx] as any).vertices
+            let [v0, v1] = find_largest_line(wall)
+            let perp = Vector.normalise(Vector.perp(Vector.sub(v1, v0)))
+            let middle = Vector.mult(Vector.add(v0, v1), 0.5)
+            let coords = Vector.add(Vector.mult(perp, margin), middle)
+            return coords
+        }
     }
     build_players(player_stats) {
+        player_stats = player_stats.concat(player_stats).concat(player_stats)
         if(player_stats.length < 2 || player_stats.length > MAX_PLAYERS)
             throw new Error(`Unsuported number of players ${player_stats.length}`);
+        this.build_play_field(player_stats.length)
         this.players = []
-        const player_coords = this.get_player_coords(player_stats.length)
         player_stats.forEach((p_stats, idx) => {
-            let [x, y] = player_coords[idx]
+            let {x, y} = this.get_player_coords(idx, player_stats.length)
             let p = new Player(x, y, this, p_stats);
             this.players.push(p)
             Composite.add(this.world, p.shape);
         })
         this.players.map((p) => p.build_emitter());
     }
-    build_play_field() {
-        const n_players = (4+2)
+    build_play_field(n_players) {
         //const n_players = this.players.length
         // add bodies
         let opts = { isStatic: true } //, friction:0, restituition:1, frictionStatic:0, inertia: 10000};
@@ -158,7 +168,8 @@ export class Env {
                 Bodies.rectangle(0, 300, 100, 600, opts)
             ]
         else { // build a polygon
-            const middle = {x: this.W/2, y: this.H/2}, radius = Math.min(this.W/2, this.H/2), border = 30
+            const middle = {x: this.W/2, y: this.H/2}, border = 30
+            const radius = (Math.min(this.W/2, this.H/2)-border) / Math.cos(Math.PI/n_players) // multiplying by constant to convert radius to inradius
             const smaller = Bodies.polygon(middle.x, middle.y, n_players, radius).vertices
             const bigger  = Bodies.polygon(middle.x, middle.y, n_players, radius + border).vertices
             for (var i=0; i< smaller.length; i++) {
@@ -170,6 +181,7 @@ export class Env {
                 walls.push(b)
             }
         }
+        this.walls = walls
         Composite.add(this.world, walls as any);
     }
     update_game_state() {
@@ -219,4 +231,16 @@ function explode(position, particle_factory) {
             {collisions: false, amount: 40, amountPerTick:10, interval: 1, collisionFilter:{group: -1}}
     );
     emitter.start();
+}
+
+function find_largest_line(v: Vector[]){
+    let max_idx = 0, max_mag = 0
+    for(var i=0; i<v.length;i++){
+        let mag = Vector.magnitudeSquared(Vector.sub(v[i], v[(i+1)% v.length]))
+        if(max_mag < mag){
+            max_mag = mag
+            max_idx = i
+        }
+    }
+    return [v[max_idx], v[(max_idx+1)%v.length]]
 }
