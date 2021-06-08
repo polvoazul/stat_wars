@@ -3,6 +3,8 @@ from itertools import chain
 import json
 
 df = pd.read_csv('./data/brasileirao.csv')
+df.dropna()
+df = df[df.ano_campeonato == 2020]
 df.columns = [c.replace('man', 'mandante').replace('vis', 'visitante') for c in df.columns]
 df['gols_tomados_mandante'] = df['gols_visitante']
 df['gols_tomados_visitante'] = df['gols_mandante']

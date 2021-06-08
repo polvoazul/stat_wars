@@ -13,7 +13,6 @@ export class Normalizer {
         multiplier *= adjusts[argMin(errors)]
         this.multipliers[col.column_names] = multiplier
         const n_decimals = 2 - Math.floor(Math.log10(target)) + 1 //TODO: test this better 
-        console.log('rounding to', n_decimals)
         return col.mul(multiplier).round(n_decimals)
     }
 }

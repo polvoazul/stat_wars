@@ -46,15 +46,18 @@ export function Table({stats, attributes, stats_to_attributes, game_state,
     //         <thead>{JSON.stringify(stats)}
     //     <tr {...columns}/></thead></BTable>)
 
+   return <MyTable columns={all_columns} data={final_data}/>
+}
+
+export function MyTable({columns, data}){
     const {
         getTableProps,
         getTableBodyProps,
         headerGroups,
         rows,
         prepareRow
-    } = useTable({columns: all_columns, data: final_data})
-
-   return (
+    } = useTable({columns, data})
+    return (
      <BTable {...getTableProps()} striped bordered hover >
        <thead>
          {headerGroups.map(headerGroup => (

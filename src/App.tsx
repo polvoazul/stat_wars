@@ -50,16 +50,24 @@ let all_stats : Stats = stats_with_metadata.data
 
 function App() {
     let [filtered_stats, set_filtered_stats] = useState(null);
+    let [is_simulating, set_is_simulating] = useState(false);
     return (
         <Router>
-            <Route path="*/debug">
+            <Route path="*#debug">
                 <Debugger env={window.env}/>
             </Route>
             <Route path="/">
             <div className="App">
-                <StatSelector filtered_stats={filtered_stats} all_stats={all_stats} set_filtered_stats={set_filtered_stats}/>
-                { filtered_stats ? 
-                    <Game stats={filtered_stats}/> : ''}
+                <StatSelector {...{is_simulating}} filtered_stats={filtered_stats} all_stats={all_stats}
+                        set_filtered_stats={set_filtered_stats} set_is_simulating={set_is_simulating}/>
+                { is_simulating ? 
+                    (filtered_stats ? 
+                        <Game stats={filtered_stats}/>
+                    :
+                        'No data to sim'
+                    )
+                  : null
+                }
             </div>
             </Route>
         </Router>
@@ -73,7 +81,7 @@ declare global { interface Window {
 function rebuild_canvas(canvas, attributes, set_game_state) {
     if (canvas.current === undefined) return
     window.env?.destroy()
-    window.env = new Env.Env(set_game_state)
+    window.env = new Env.Env(set_game_state, )
     canvas.current.innerHTML = ""
     window.env.setup("canvas", attributes);
     console.log('rebuilding canvas')
@@ -94,15 +102,17 @@ function Game({stats, }) {
 
     useEffect(() => {
         rebuild_canvas(canvas, attributes, set_game_state)
-        return () => {window.env.destroy()}
+        return window.env.destroy
     }, [attributes])
 
-    return ( <div className="container">
-        <Table stats={stats} attributes={attributes} 
-                stats_to_attributes={stats_to_attributes}
-                game_state={game_state} start_time={start_time}
-                multipliers={multipliers} 
-        />
+    return (<div className="container">
+        <div style={{overflowY: 'scroll'}}>
+            <Table stats={stats} attributes={attributes} 
+                    stats_to_attributes={stats_to_attributes}
+                    game_state={game_state} start_time={start_time}
+                    multipliers={multipliers} 
+            />
+        </div>
         <Button onClick={restart_sim}> Restart Simulation </Button>
         <div className="mt-1"></div>
         <div id="canvas" ref={canvas}></div>
