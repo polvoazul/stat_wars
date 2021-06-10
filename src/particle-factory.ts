@@ -3,14 +3,14 @@ import { Bodies, Body, Composite,} from 'matter-js'
 import { Env } from './env'
 import Player from './player'
 
-import ball from './sprites/ball.png'
-function get_pattern(){
-    var canvas : any = document.getElementById('canvas')?.children[0]
-    var ctx = canvas.getContext('2d');
-    let img = new Image()
-    img.src = ball
-    return ctx.createPattern(img, 'repeat');
-}
+// import ball from './sprites/ball.png'
+// function get_pattern(){
+//     var canvas : any = document.getElementById('canvas')?.children[0]
+//     var ctx = canvas.getContext('2d');
+//     let img = new Image()
+//     img.src = ball
+//     return ctx.createPattern(img, 'repeat');
+// }
 
 declare module 'matter-js' {
   interface Body {

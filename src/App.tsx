@@ -102,7 +102,7 @@ function Game({stats, }) {
 
     useEffect(() => {
         rebuild_canvas(canvas, attributes, set_game_state)
-        return window.env.destroy
+        return () => window.env.destroy()
     }, [attributes])
 
     return (<div className="container">

@@ -124,24 +124,17 @@ export class Env {
 
     get_player_coords(idx, n) {
         if (n < 2) throw new Error('only >= 2 players supported')
+        if (n === 2)
+            idx = idx * 2 // if 2 players on a square, skip a wall to have oponents face each other
         let margin = 120
-        if (n == 2) {
-            return [
-                {x: 0 + margin, y: this.H / 2},
-                {x: this.W - (margin), y: this.H / 2},
-            ][idx]
-        }
-        else {
-            let wall: Vector[] = (this.walls[idx] as any).vertices
-            let [v0, v1] = find_largest_line(wall)
-            let perp = Vector.normalise(Vector.perp(Vector.sub(v1, v0)))
-            let middle = Vector.mult(Vector.add(v0, v1), 0.5)
-            let coords = Vector.add(Vector.mult(perp, margin), middle)
-            return coords
-        }
+        let wall: Vector[] = (this.walls[idx] as any).vertices
+        let [v0, v1] = find_largest_line(wall)
+        let perp = Vector.normalise(Vector.perp(Vector.sub(v1, v0)))
+        let middle = Vector.mult(Vector.add(v0, v1), 0.5)
+        let coords = Vector.add(Vector.mult(perp, margin), middle)
+        return coords
     }
     build_players(player_stats) {
-        player_stats = player_stats.concat(player_stats).concat(player_stats)
         if(player_stats.length < 2 || player_stats.length > MAX_PLAYERS)
             throw new Error(`Unsuported number of players ${player_stats.length}`);
         this.build_play_field(player_stats.length)
@@ -155,31 +148,22 @@ export class Env {
         this.players.map((p) => p.build_emitter());
     }
     build_play_field(n_players) {
-        //const n_players = this.players.length
-        // add bodies
         let opts = { isStatic: true } //, friction:0, restituition:1, frictionStatic:0, inertia: 10000};
-        // @ts-ignore
         let walls : Bodies[] = []
         if (n_players === 2)
-            walls = [
-                Bodies.rectangle(400, 0, 800, 100, opts),
-                Bodies.rectangle(400, 600, 800, 100, opts),
-                Bodies.rectangle(800, 300, 100, 600, opts),
-                Bodies.rectangle(0, 300, 100, 600, opts)
-            ]
-        else { // build a polygon
-            const middle = {x: this.W/2, y: this.H/2}, border = 30
-            const radius = (Math.min(this.W/2, this.H/2)-border) / Math.cos(Math.PI/n_players) // multiplying by constant to convert radius to inradius
-            const smaller = Bodies.polygon(middle.x, middle.y, n_players, radius).vertices
-            const bigger  = Bodies.polygon(middle.x, middle.y, n_players, radius + border).vertices
-            for (var i=0; i< smaller.length; i++) {
-                const ip1 = (i+1)%smaller.length
-                const sides = [smaller[i], smaller[ip1], bigger[ip1], bigger[i]]
-                let b = Bodies.fromVertices(middle.x, middle.y, [sides], opts)
-                const offset = {x: sides[0].x - b.vertices[0].x, y: sides[0].y - b.vertices[0].y}
-                Matter.Body.translate(b, offset)
-                walls.push(b)
-            }
+            n_players = 4 // build a square anyway
+        // build a regular polygon
+        const middle = {x: this.W/2, y: this.H/2}, border = 30
+        const radius = (Math.min(this.W/2, this.H/2)-border) / Math.cos(Math.PI/n_players) // multiplying by constant to convert radius to inradius
+        const smaller = Bodies.polygon(middle.x, middle.y, n_players, radius).vertices
+        const bigger  = Bodies.polygon(middle.x, middle.y, n_players, radius + border).vertices
+        for (var i=0; i< smaller.length; i++) {
+            const ip1 = (i+1)%smaller.length
+            const sides = [smaller[i], smaller[ip1], bigger[ip1], bigger[i]]
+            let b = Bodies.fromVertices(middle.x, middle.y, [sides], opts)
+            const offset = {x: sides[0].x - b.vertices[0].x, y: sides[0].y - b.vertices[0].y} // fromVertices translates bodies immediatly after creation, so we undo this
+            Matter.Body.translate(b, offset)
+            walls.push(b)
         }
         this.walls = walls
         Composite.add(this.world, walls as any);
