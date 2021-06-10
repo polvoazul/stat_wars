@@ -7,7 +7,6 @@ import { DataTable } from "./DataTable"
 
 export default function StatSelector({all_stats, filtered_stats, set_filtered_stats,
         is_simulating, set_is_simulating}){
-    let select : any = useRef()
     let players : any = useRef([])
     all_stats = dfToNative(all_stats)
     let teams = all_stats.map((x, idx) => ({value: idx, label: `${x.ano_campeonato}/${x.time}`}))
@@ -25,8 +24,6 @@ export default function StatSelector({all_stats, filtered_stats, set_filtered_st
         set_filtered_stats(out)
     }
     function reset(){
-        //s1.current.select.clearValue();
-        //s2.current.select.clearValue();
         set_is_simulating(false)
     }
     function go() {
@@ -38,8 +35,8 @@ export default function StatSelector({all_stats, filtered_stats, set_filtered_st
         <div className='container'>
         <div className='row'>
             <div className='col-4' style={{ maxWidth: "3000px" }}>
-                <div> Player 1:
-                    <Select ref={select} name="Player 1" isMulti isDisabled={is_simulating} onChange={update} options={teams} />
+                <div> Select players:
+                    <Select name="Players" isMulti isDisabled={is_simulating} onChange={update} options={teams}/>
                 </div>
                 {is_simulating ? <Button onClick={reset}> RESET </Button> : null}
                 {players.current.length >= 2 && !is_simulating ? <Button onClick={go}> Start Simulation </Button> : null}
