@@ -3,7 +3,7 @@ import Button from 'react-bootstrap/Button'
 import { dfToNative } from './stats'
 import { useRef, } from 'react'
 import { Stats } from './App'
-import { MyTable } from './Table'
+import { DataTable } from "./DataTable"
 
 export default function StatSelector({all_stats, filtered_stats, set_filtered_stats,
         is_simulating, set_is_simulating}){
@@ -46,7 +46,7 @@ export default function StatSelector({all_stats, filtered_stats, set_filtered_st
             </div>
             <div className='col' style={{overflowY: 'scroll'}}>
                 {   columns
-                    ? <MyTable columns={columns} data={filtered_stats} />
+                    ? <DataTable columns={columns} data={filtered_stats} />
                     : null
                 }
             </div>

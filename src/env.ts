@@ -122,10 +122,11 @@ export class Env {
     }
     players!: Array<Player>
 
-    get_player_coords(idx, n) {
+    get_player_coords(idx, n: number) {
         if (n < 2) throw new Error('only >= 2 players supported')
+        if (idx >= n) throw new Error(`wrong index ${idx} >= ${n}`)
         if (n === 2)
-            idx = idx * 2 // if 2 players on a square, skip a wall to have oponents face each other
+            idx = {0: 3, 1: 1}[idx] // if 2 players on a square, position players so that oponents face each other
         let margin = 120
         let wall: Vector[] = (this.walls[idx] as any).vertices
         let [v0, v1] = find_largest_line(wall)

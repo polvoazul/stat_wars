@@ -1,8 +1,8 @@
-import BTable from 'react-bootstrap/Table'
-import {useTable, Column} from 'react-table'
+import {Column} from 'react-table'
 import {useEffect, useMemo, useRef} from 'react'
 import {Attributes, attribute_labels} from './App'
 import clone from 'just-clone'
+import { DataTable } from './DataTable'
 
 const game_state_columns = [
     { Header: 'Health', accessor: 'game.health', Cell: GameStateCell},
@@ -46,48 +46,7 @@ export function Table({stats, attributes, stats_to_attributes, game_state,
     //         <thead>{JSON.stringify(stats)}
     //     <tr {...columns}/></thead></BTable>)
 
-   return <MyTable columns={all_columns} data={final_data}/>
-}
-
-export function MyTable({columns, data}){
-    const {
-        getTableProps,
-        getTableBodyProps,
-        headerGroups,
-        rows,
-        prepareRow
-    } = useTable({columns, data})
-    return (
-     <BTable {...getTableProps()} striped bordered hover >
-       <thead>
-         {headerGroups.map(headerGroup => (
-           <tr {...headerGroup.getHeaderGroupProps()}>
-             {headerGroup.headers.map(column => (
-               <th {...column.getHeaderProps()} >
-                   {column.render('Header')}
-               </th>
-             ))}
-           </tr>
-         ))}
-       </thead>
-       <tbody {...getTableBodyProps()}>
-         {rows.map(row => {
-           prepareRow(row)
-           return (
-             <tr {...row.getRowProps()}>
-               {row.cells.map(cell => {
-                  return (
-                   <td {...cell.getCellProps()} >
-                       {cell.render('Cell')}
-                   </td>
-                  )
-               })}
-             </tr>
-           )
-         })}
-       </tbody>
-     </BTable>
-   )
+   return <DataTable columns={all_columns} data={final_data}/>
 }
 
 function Cell({column, row, value, cell}){
